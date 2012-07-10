@@ -275,7 +275,8 @@ class WPGitHubUpdater {
 
 		global $wp_filesystem;
 
-		$plugin = $this->plugins[ $hook_extra['plugin'] ];
+		$plugin = $this->plugins[ dirname($hook_extra['plugin']) ];
+
 
 		// Move & Activate
 		$proper_destination = WP_PLUGIN_DIR.'/'.$plugin->folder_name;
