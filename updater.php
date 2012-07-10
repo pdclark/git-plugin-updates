@@ -177,8 +177,13 @@ class WPGitHubUpdater {
 				list( /*nothing*/, $username, $repository ) = explode('/', $parsed['path'] );
 				return new WordPress_Github_Updater( array_merge($meta, array( 'username' => $username, 'repository' => $repository, )) );
 			break;
-
 		}
+
+		if ( '.git' == substr($parsed['path'], -4) ) {
+			if ( !class_exists('WordPress_Gitweb_Updater') ) { include 'transports/gitweb.php'; }
+			return new WordPress_Gitweb_Updater( array_merge( $meta, $parsed ) );
+		}
+
 
 		return false;
 	}
@@ -195,7 +200,7 @@ class WPGitHubUpdater {
 
 		// Check if the transient contains the 'checked' information
 		// If not, just return its value without hacking it
-		if ( empty( $transient->checked ) )
+		if ( empty( $transient->last_checked ) && empty( $transient->checked ) )
 			return $transient;
 
 		foreach( $this->plugins as $plugin ) {
@@ -230,6 +235,7 @@ class WPGitHubUpdater {
 	 */
 	public function get_plugin_info( $false, $action, $response ) {
 		// Check if this call API is for the right plugin
+
 		if ( !array_key_exists($response->slug, $this->plugins) )
 			return false;
 

@@ -34,7 +34,6 @@ class WordPress_Github_Updater {
 		$this->set_last_updated();
 		$this->set_description();
 
-		var_dump($this);
 	}
 
 	/**
