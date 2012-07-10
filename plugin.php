@@ -23,4 +23,6 @@ License: GPLv2
  */
 
 
+define('WP_GITHUB_FORCE_UPDATE', true);
+
 include_once dirname(__FILE__).'/updater.php';
