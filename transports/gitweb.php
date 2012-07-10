@@ -46,8 +46,6 @@ class WordPress_Gitweb_Updater {
 		$response = wp_remote_get( $this->url.'/tags' );
 
 		if ( is_wp_error( $response ) ) {
-			var_dump($response);
-			exit;
 			return false;
 		}
 

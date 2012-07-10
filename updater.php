@@ -119,7 +119,7 @@ class WPGitHubUpdater {
 	 * @return array plugin header search terms
 	 */
 	public function extra_plugin_headers() {
-		return array( 'requires', 'tested' );
+		return array( 'requires', 'tested', 'git uri' );
 	}
 
 
@@ -168,7 +168,11 @@ class WPGitHubUpdater {
 	 * @return object
 	 */
 	public function get_repo_transport( $meta ) {
-		$parsed = parse_url( $meta['PluginURI'] );
+		if ( !empty( $meta['git uri'] ) ) {
+			$parsed = parse_url( $meta['git uri'] );
+		}else {
+			$parsed = parse_url( $meta['PluginURI'] );
+		}
 
 		switch( $parsed['host'] ) {
 			case 'github.com':
