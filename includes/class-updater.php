@@ -58,6 +58,8 @@ abstract class GPU_Updater {
 
 		$this->set_repo_info( $args );
 
+		add_filter( 'http_request_args', array( $this, 'maybe_authenticate_zip_url' ), 10, 2 );
+
 		add_filter( 'gpu_ssl_disabled_urls', array( $this, 'ssl_disabled_urls' ) );
 
 	}
@@ -247,6 +249,20 @@ abstract class GPU_Updater {
 
 	}
 
+	/**
+	 * Disable SSL only for Git repo URLs
+	 *
+	 * @return array $args http_request_args
+	 */
+	public function maybe_authenticate_zip_url( $args, $url ) {
+
+		if ( $url == $this->get_zip_url() ) {
+			$args = $this->maybe_authenticate_http( $args );
+		}
+
+		return $args;
+	}
+
 	abstract protected function api( $url );
 
 	abstract protected function get_api_url( $endpoint );
@@ -254,5 +270,7 @@ abstract class GPU_Updater {
 	abstract protected function get_remote_info();
 	
 	abstract protected function get_zip_url();
+
+	abstract protected function maybe_authenticate_http( $args );
 
 }
