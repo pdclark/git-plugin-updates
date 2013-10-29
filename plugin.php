@@ -3,7 +3,7 @@
 Plugin Name: Git Plugin Updates
 Plugin URI: https://github.com/brainstormmedia/git-plugin-updates
 Description: Update plugins hosted on <a href="http://github.com" target="_blank">Github</a> and <a href="http://bitbucket.org" target="_blank">Bitbucket</a>. Search and install plugins from Github using <a href="https://github.com/brainstormmedia/github-plugin-search/" target="_blank">Github Plugin Search</a>.
-Version: 2.0b1
+Version: 2.0
 Author: Brainstorm Media
 Author URI: http://brainstormmedia.com/
 License: GPLv2
