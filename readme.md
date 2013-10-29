@@ -2,15 +2,13 @@
 
 The plugin can be either be activated in WordPress, or `plugin.php` can be included in your own plugin using `require_once 'git-plugin-updates/plugin.php';`.
 
-Either way, the plugin will activate Github updates for every plugin with a Git or Bitbucket repository in its header:
+This plugin will activate Github updates for every plugin with a Git or Bitbucket repository in its header:
 
-	<pre>
 	/*
 	Plugin Name: Plugin Example
 	Plugin URI: https://github.com/brainstormmedia/git-plugin-updates
 	Git URI: https://github.com/brainstormmedia/git-plugin-updates
 	*/
-	</pre>
 
 Either `Plugin URI` or `Git URI` can be set to your repository address. You don't need both.
 
@@ -20,9 +18,9 @@ For private repos, you can use the URI format:
 # Changelog
 
 ### 2.0
-* Rewrite to support Github as well as Bitbucket
+* Rewrite to support Github and Bitbucket (private and public)
 * Updates enabled on plugins by including a Git repository address in the Plugin Header under `Plugin URI` or `Git URI`.
-* Enable private repositories with `URI` format `https://username:password@repo_address`.
+* Enable private repositories with `URI` format `https://username:password@repo_address`
 * Get remote version number from plugin header.
 
 ### 1.4
