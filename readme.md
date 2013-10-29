@@ -18,7 +18,8 @@ Usage instructions
 
 Either `Plugin URI` or `Git URI` can be set to your repository address. You don't need both.
 
-For private repos, you can use the URI format `https://username:password@github.com/brainstormmedia/git-plugin-updates`.
+For private repos, you can use the URI format:
+`https://username:password@bitbucket.org/brainstormmedia/git-plugin-updates`
 
 Changelog
 ===========

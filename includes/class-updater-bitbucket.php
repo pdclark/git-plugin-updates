@@ -134,6 +134,17 @@ class GPU_Updater_Bitbucket extends GPU_Updater {
 	}
 
 	/**
+	 * Get plugin details section for plugin details iframe
+	 *
+	 * @return array Sections array for wp-admin/plugin-install.php::install_plugin_information()
+	 */
+	protected function get_sections() {
+		return array(
+			'description' => '<pre>Plugin details not yet supported for Bitbucket repositories.</pre>',
+		);
+	}
+
+	/**
 	 * Disable SSL only for Git repo URLs
 	 *
 	 * @return array $args http_request_args
