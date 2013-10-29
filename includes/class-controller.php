@@ -101,7 +101,7 @@ class GPU_Controller {
 		add_action( 'admin_init', array($this, 'load_plugins'), 20 );
 
 		// Plugin details screen
-		add_filter( 'plugins_api', array( $this, 'plugins_api' ), 10, 3 );
+		add_filter( 'plugins_api', array( $this, 'plugins_api' ), 9000, 3 );
 
 		// Cleanup and activate plugins after update
 		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
@@ -304,25 +304,33 @@ class GPU_Controller {
 	 * @return object $response The plugin info
 	 */
 	public function plugins_api( $false, $action, $response ) {
-
-		// Check if this request is for one of our plugins
-		if ( !array_key_exists( $response->slug, (array)$this->plugins ) ) {
-			return false;
+		
+		// API sometimes passes full slug instead of just dirname
+		// e.g., on plugin_information page
+		if ( false === strpos( $response->slug, '/') ) {
+			$plugin_key = $response->slug;
+		}else {
+			$plugin_key = explode( '/', $response->slug );
+			$plugin_key = $plugin_key[0];
 		}
 
-		$plugin = $this->plugins[ $response->slug ];
+		if ( !array_key_exists( $plugin_key, (array)$this->plugins ) ) {
+			return false;
+		}
+		$plugin = $this->plugins[ $plugin_key ];
 
-		$response->slug = $plugin->slug;
-		$response->plugin_name  = $plugin->name;
-		$response->version = $plugin->remote_version;
-		$response->author = $plugin->author;
-		$response->homepage = $plugin->homepage;
-		$response->requires = $plugin->requires;
-		$response->tested = $plugin->tested;
-		$response->downloaded   = 0;
-		$response->last_updated = $plugin->last_updated;
-		$response->sections = array( 'description' => $plugin->description );
+		$response->slug          = $plugin->slug;
+		$response->plugin_name   = $plugin->name;
+		$response->version       = $plugin->remote_version;
+		$response->author        = $plugin->author;
+		$response->homepage      = $plugin->homepage;
+		$response->requires      = $plugin->requires;
+		$response->tested        = $plugin->tested;
+		$response->downloaded    = 0;
+		$response->last_updated  = $plugin->last_updated;
 		$response->download_link = $plugin->zip_url;
+
+		$response->sections = ( 'plugin_information' == $action ) ? $plugin->sections : array();
 
 		return $response;
 	}

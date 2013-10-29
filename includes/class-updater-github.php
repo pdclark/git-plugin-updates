@@ -15,7 +15,7 @@ class GPU_Updater_Github extends GPU_Updater {
 	public function __construct( $args ){
 		parent::__construct( $args );
 
-		add_filter( 'ghu_http_request_args', array( $this, 'maybe_authenticate_http' ) );
+		add_filter( 'gpu_http_request_args', array( $this, 'maybe_authenticate_http' ) );
 	}
 
 	/**
@@ -42,15 +42,21 @@ class GPU_Updater_Github extends GPU_Updater {
 	 *
 	 * @author Andy Fragen, Codepress
 	 * @link   https://github.com/afragen/github-updater
+	 * 
+	 * @param string $type plugin|readme
 	 */
-	protected function get_remote_info() {
+	protected function get_remote_info( $type = 'plugin' ) {
+		if ( 'plugin' == $type ){
+			$type = 'contents/' . basename( $this->slug );
+		}
+
 		// Transients fail if key is longer than 45 characters
-		$transient_key = 'ghu-' . md5( $this->slug );
+		$transient_key = 'gpu-' . md5( $type );
 
 		$remote = get_site_transient( $transient_key );
 
 		if ( false === $remote ) {
-			$remote = $this->api( '/repos/:owner/:repo/contents/' . basename( $this->slug ) );
+			$remote = $this->api( '/repos/:owner/:repo/' . $type );
 
 			if ( $remote ) {
 				set_site_transient( $transient_key, $remote, GPU_Controller::$update_interval );
@@ -71,7 +77,7 @@ class GPU_Updater_Github extends GPU_Updater {
 	 */
 	protected function api( $url ) {
 
-		$request_args = apply_filters( 'ghu_http_request_args', $this->git_request_args );
+		$request_args = apply_filters( 'gpu_http_request_args', $this->git_request_args );
 		$response = wp_remote_get( $this->get_api_url( $url ), $request_args );
 
 		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) != '200' ) {
@@ -137,19 +143,6 @@ class GPU_Updater_Github extends GPU_Updater {
 	// 	if ( false === $_date ) { return false; }
 	// 	return ( !empty($_date->updated_at) ) ? date( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
 	// }
-
-
-	/**
-	 * Get plugin description
-	 *
-	 * @since 1.0
-	 * @return string $description the description
-	 */
-	protected function get_description() {
-		$_description = $this->get_remote_info();
-		if ( false === $_description ) { return false; }
-		return ( !empty($_description->description) ) ? $_description->description : false;
-	}
 
 	public function maybe_authenticate_http( $args ) {
 		$username = apply_filters( 'gpu_username_github', false );

@@ -23,7 +23,7 @@ abstract class GPU_Updater {
 	protected $remote_info;
 	protected $last_updated;
 	protected $zip_url;
-	protected $description;
+	protected $sections;
 
 	/**
 	 * @var array Settings for the Github request. Filter with ghu_http_request_args.
@@ -195,6 +195,29 @@ abstract class GPU_Updater {
 		return false;
 	}
 
+	/**
+	 * Get plugin details section for plugin details iframe
+	 *
+	 * @return array Sections array for wp-admin/plugin-install.php::install_plugin_information()
+	 */
+	protected function get_sections() {
+		$readme = $this->get_remote_info( 'readme' );
+
+		if ( false === $readme ) {
+			return array();
+		}
+
+		$readme = base64_decode( $readme->content );
+
+		// Maybe TODO: parse readme textile into sections.
+		// Also, maybe not, because $readme could be markdown.
+		return array(
+			'description' => '<pre>' . $readme . '</pre>',
+			// 'installation' => $readme,
+			// 'changelog' => $readme,
+		);
+	}
+
 	abstract protected function set_repo_info( $plugin );
 
 	abstract protected function api( $url );
@@ -204,7 +227,5 @@ abstract class GPU_Updater {
 	abstract protected function get_remote_info();
 	
 	abstract protected function get_zip_url();
-
-	abstract protected function get_description();
 
 }
