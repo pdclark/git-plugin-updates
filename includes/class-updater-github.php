@@ -145,8 +145,12 @@ class GPU_Updater_Github extends GPU_Updater {
 	// }
 
 	public function maybe_authenticate_http( $args ) {
-		$username = apply_filters( 'gpu_username_github', false );
-		$password = apply_filters( 'gpu_password_github', false );
+		if ( !empty( $this->access_token ) ) {
+			return $args;
+		}
+
+		$username = apply_filters( 'gpu_username_github', $this->username );
+		$password = apply_filters( 'gpu_password_github', $this->password );
 
 		if ( $username && $password ) {
 			$args['headers']['Authorization'] = 'Basic ' . base64_encode( "$username:$password" );
