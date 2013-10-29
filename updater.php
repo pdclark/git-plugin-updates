@@ -1,14 +1,4 @@
 <?php
-/**
- * @package GithubUpdater
- * @author Joachim Kudish @link http://jkudish.com
- * @since 1.3
- * @version 1.4
- * @author Joachim Kudish <info@jkudish.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @copyright Copyright (c) 2011, Joachim Kudish
- */
-
 if ( !class_exists('Storm_Git_Updater') ) :
 
 add_action('admin_init', create_function('', 'global $Storm_Git_Updater; $Storm_Git_Updater = new Storm_Git_Updater();') );
@@ -61,14 +51,13 @@ class Storm_Git_Updater {
 
 		// HTTP Timeout
 		add_filter( 'http_request_timeout', array( $this, 'http_request_timeout' ) );
-		
+
 		// Maybe disable HTTP SSL Certificate Check for Git URLs
 		// If statement can likely be removed.
 		// @see https://github.com/jkudish/WordPress-GitHub-Plugin-Updater/issues/2#issuecomment-6654644
 		if ( false === $this->ssl_verify ) {
 			add_filter( 'http_request_args', array($this, 'disable_git_ssl_verify'), 10, 2 );
 		}
-
 	}
 
 
@@ -112,21 +101,6 @@ class Storm_Git_Updater {
 	public function http_request_timeout() {
 		return 2;
 	}
-
-	/**
-	 * Callback fn for the http_request_args filter
-	 *
-	 * @param $args
-	 * @param $url
-	 *
-	 * @return mixed
-	 */
-	public function http_request_sslverify ( $args, $url ) {
-		if ( $this->config[ 'zip_url' ] == $url )
-			$args[ 'sslverify' ] = $this->config[ 'sslverify' ];
-
-		return $args;
-        }
 
 
 	/**

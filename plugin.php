@@ -1,28 +1,23 @@
 <?php
 /*
 Plugin Name: WP Github Plugin Updater
-Plugin URI: https://github.com/jkudish/WordPress-GitHub-Plugin-Updater
-Description: Enable updates for all plugins with github.com in the header under Plugin URI.
+Plugin URI: https://github.com/brainstormmedia/git-updater
+Description: Update plugins hosted on <a href="http://github.com" target="_blank">Github</a> and <a href="http://bitbucket.org" target="_blank">Bitbucket</a>. Search and install plugins from Github using <a href="https://github.com/brainstormmedia/github-plugin-search/" target="_blank">Github Plugin Search</a>.
 Version: 0.1
-Author: Joachim Kudish
-Author URI: http://jkudish.com/
+Real Version: 1.0
+Author: Brainstorm Media
+Author URI: http://brainstormmedia.com/
 License: GPLv2
 */
 
 /**
- * Note: the version # above is purposely low in order to be able to test the updater
- * The real version # is below
- *
- * @package GithubUpdater
- * @author Joachim Kudish @link http://jkudish.com
- * @since 1.3
- * @version 1.4
- * @author Joachim Kudish <info@jkudish.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @copyright Copyright (c) 2011, Joachim Kudish
+ * NOTE: Version number above is 0.1 to test updates.
+ * 
+ * Forked from WordPress Github Plugin Updater by Joachin Kudish
+ * @link https://github.com/jkudish/WordPress-GitHub-Plugin-Updater
+ * @link http://jkudish.com
  */
 
-
-define('WP_GITHUB_FORCE_UPDATE', true);
+define( 'WP_GITHUB_FORCE_UPDATE', WP_DEBUG );
 
 include_once dirname(__FILE__).'/updater.php';
