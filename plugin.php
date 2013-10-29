@@ -77,6 +77,7 @@ function storm_git_plugin_updates_init() {
 		require_once dirname( __FILE__ ) . '/includes/class-controller.php';
 		require_once dirname( __FILE__ ) . '/includes/class-updater.php';
 		require_once dirname( __FILE__ ) . '/includes/class-updater-github.php';
+		require_once dirname( __FILE__ ) . '/includes/class-updater-bitbucket.php';
 		
 		GPU_Controller::get_instance();
 

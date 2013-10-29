@@ -152,6 +152,7 @@ class GPU_Controller {
 	 */
 	public function clear_cache_if_debugging() {
 		if ( ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			delete_site_transient( 'update_plugins' ); // WordPress update check
 			delete_site_transient( GPU_Controller::OPTION_KEY . '-plugin-objects' );
 		}
 	}
@@ -194,6 +195,7 @@ class GPU_Controller {
 				$response = array(
 					'slug'        => $plugin->folder_name,
 					'new_version' => $plugin->remote_version,
+					// TODO: Fix Bitbucket homepage
 					'url'         => $plugin->homepage,
 					'package'     => $plugin->zip_url,
 				);
@@ -254,13 +256,11 @@ class GPU_Controller {
 			return new GPU_Updater_Github( $args );
 		}
 
-		/*
 		if ( GPU_Updater_Bitbucket::updates_this_plugin( $args ) ) {
-			// list( /*nothing*!/, $username, $repository ) = explode('/', $parsed['path'] );
-			// return new GPU_Updater_Bitbucket( array_merge($args, array( 'username' => $username, 'repository' => $repository, 'user' => $parsed['user'], 'pass' => $parsed['pass'] )) );
 			return new GPU_Updater_Bitbucket( $args );
 		}
 
+		/*
 		if ( GPU_Updater_Gitweb::updates_this_plugin( $args ) ) {
 			// if ( '.git' == substr($parsed['path'], -4) ) {
 			// 	return new GPU_Updater_Gitweb( array_merge( $args, $parsed ) );
