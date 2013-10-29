@@ -193,7 +193,7 @@ class GPU_Controller {
 
 				$response = array(
 					'slug'        => $plugin->folder_name,
-					'new_version' => $plugin->new_version,
+					'new_version' => $plugin->remote_version,
 					'url'         => $plugin->homepage,
 					'package'     => $plugin->zip_url,
 				);
@@ -304,7 +304,7 @@ class GPU_Controller {
 	 * @return object $response The plugin info
 	 */
 	public function plugins_api( $false, $action, $response ) {
-		
+
 		// Check if this request is for one of our plugins
 		if ( !array_key_exists( $response->slug, (array)$this->plugins ) ) {
 			return false;
@@ -314,7 +314,7 @@ class GPU_Controller {
 
 		$response->slug = $plugin->slug;
 		$response->plugin_name  = $plugin->name;
-		$response->version = $plugin->new_version;
+		$response->version = $plugin->remote_version;
 		$response->author = $plugin->author;
 		$response->homepage = $plugin->homepage;
 		$response->requires = $plugin->requires;

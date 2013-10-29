@@ -17,6 +17,14 @@ abstract class GPU_Updater {
 	protected $requires;
 	protected $tested;
 
+	protected $local_version;
+	protected $remote_version;
+	protected $default_branch;
+	protected $remote_info;
+	protected $last_updated;
+	protected $zip_url;
+	protected $description;
+
 	/**
 	 * @var array Settings for the Github request. Filter with ghu_http_request_args.
 	 */
@@ -180,6 +188,13 @@ abstract class GPU_Updater {
 		return $ref;
 	}
 
+	/**
+	 * Get the last updated date from remote repo
+	 */
+	protected function get_last_updated() {
+		return false;
+	}
+
 	abstract protected function set_repo_info( $plugin );
 
 	abstract protected function api( $url );
@@ -189,8 +204,6 @@ abstract class GPU_Updater {
 	abstract protected function get_remote_info();
 	
 	abstract protected function get_zip_url();
-
-	abstract protected function get_last_updated();
 
 	abstract protected function get_description();
 

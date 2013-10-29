@@ -130,14 +130,13 @@ class GPU_Updater_Github extends GPU_Updater {
 	/**
 	 * Get update date
 	 *
-	 * @since 1.0
 	 * @return string $date the date
 	 */
-	protected function get_last_updated() {
-		$_date = $this->get_remote_info();
-		if ( false === $_date ) { return false; }
-		return ( !empty($_date->updated_at) ) ? date( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
-	}
+	// protected function get_last_updated() {
+	// 	$_date = $this->get_remote_info();
+	// 	if ( false === $_date ) { return false; }
+	// 	return ( !empty($_date->updated_at) ) ? date( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
+	// }
 
 
 	/**
