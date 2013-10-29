@@ -86,6 +86,8 @@ function storm_git_plugin_updates_init() {
 	if ( is_admin() && !class_exists( 'GPU_Controller') ) {
 
 		require_once dirname( __FILE__ ) . '/includes/class-controller.php';
+		require_once dirname( __FILE__ ) . '/includes/class-updater.php';
+		require_once dirname( __FILE__ ) . '/includes/class-updater-github.php';
 		
 		GPU_Controller::get_instance();
 
