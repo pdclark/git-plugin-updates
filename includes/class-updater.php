@@ -25,6 +25,7 @@ abstract class GPU_Updater {
 	protected $zip_url;
 	protected $sections;
 
+
 	/**
 	 * @var array Settings for the Github request. Filter with ghu_http_request_args.
 	 */

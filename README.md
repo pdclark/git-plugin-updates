@@ -1,32 +1,33 @@
-WordPress Github Plugin Updater
+Git Plugin Updates for WordPress
 
-This class is meant to be used with your Github hosted WordPress plugins. The purpose of the class is to allow your WordPress plugin to be updated whenever you push out a new version of your plugin; similarly to the experience users know and love with the WordPress.org plugin repository.
-
-Not all plugins can or should be hosted on the WordPress.org plugin repository, or you may chose to host it on github only.
-
-The code is still in it's infancy, but [I am currently using it](https://github.com/jkudish/JigoShop-Software-Add-on) on a production plugin and production website, without any glitches. That being said, please consider this as a beta release. The project started off as a private client request, but is now public for anyone to collaborate on. I am open to any suggestions :)
+This plugin can be installed on its own, or included in your own plugins or themes. It scans all installed plugins for Git repository addresses in the Plugin Headers, then enables automatic updates from those repositories.
 
 Usage instructions
 ===========
 
-* The plugin can be either be activated in WordPress, or updater.php can be included in your own plugin using `include_once 'updater.php';`.
-* Either way, the plugin will activate Github updates for every plugin with a github.com repository as the Plugin URI in its header:
+* The plugin can be either be activated in WordPress, or `plugin.php` can be included in your own plugin using `require_once 'git-plugin-updates/plugin.php';`.
+* Either way, the plugin will activate Github updates for every plugin with a Git or Bitbucket repository in its header:
 
 	<pre>
 	/*
 	Plugin Name: Plugin Example
-	Plugin URI: https://github.com/jkudish/WordPress-GitHub-Plugin-Updater
-	Requires: 3.0
-	Tested: 3.4
+	Plugin URI: https://github.com/brainstormmedia/git-plugin-updates
+	Git URI: https://github.com/brainstormmedia/git-plugin-updates
 	*/
 	</pre>
 
-* In your Github repository, you will need to tag releases with new version numbers. New commits will not trigger an update until they are tagged with a higher version number. Don't forget to push your tags: `git push origin --tags`
+Either `Plugin URI` or `Git URI` can be set to your repository address. You don't need both.
 
-* **Note**: this class will unfortunately not work with a private repository, your repository needs to be publicly accessible. If anyone knows how to make this work for private repositories, please get in touch!
+For private repos, you can use the URI format `https://username:password@github.com/brainstormmedia/git-plugin-updates`.
 
 Changelog
 ===========
+
+### 2.0
+* Rewrite to support Github as well as Bitbucket
+* Updates enabled on plugins by including a Git repository address in the Plugin Header under `Plugin URI` or `Git URI`.
+* Enable private repositories with `URI` format `https://username:password@repo_address`.
+* Get remote version number from plugin header.
 
 ### 1.4
 * Minor fixes from [@sc0ttkclark](https://github.com/sc0ttkclark)'s use in Pods Framework
@@ -57,7 +58,11 @@ Changelog
 Credits
 ===========
 
-This class is built and maintained by [Joachim Kudish](http://jkudish.com "Joachim Kudish")
+This plugin is written and maintained by [Paul Clark](http://pdclark.com "pdclark").
+
+It was forked from [WordPress Github Plugin Updater](https://github.com/jkudish/WordPress-GitHub-Plugin-Updater) by [Joachim Kudish](http://jkudish.com "Joachim Kudish").
+
+It has been updated with some methods from [Github Updater](https://github.com/afragen/github-updater) by [Andy Fragen](https://github.com/afragen "Andy Fragen, Codepress").
 
 License
 ===========

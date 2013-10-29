@@ -3,7 +3,7 @@
 Plugin Name: Git Plugin Updates
 Plugin URI: https://github.com/brainstormmedia/git-plugin-updates
 Description: Update plugins hosted on <a href="http://github.com" target="_blank">Github</a> and <a href="http://bitbucket.org" target="_blank">Bitbucket</a>. Search and install plugins from Github using <a href="https://github.com/brainstormmedia/github-plugin-search/" target="_blank">Github Plugin Search</a>.
-Version: 1.0
+Version: 2.0b1
 Author: Brainstorm Media
 Author URI: http://brainstormmedia.com/
 License: GPLv2
@@ -11,22 +11,7 @@ License: GPLv2
 
 /**
  * ## TESTING
- * 
  * Change version number above to 0.1 to test updates.
- * 
- * ## Plugin and Theme Developers
- * 
- * You don't have to run Git Plugin Updates as a plugin!
- * Instead, you can copy this plugin folder into your plugin or theme,
- * then include this file:
- * 
- *   <code> require_once dirname( __FILE__ ) . '/git-plugin-updates/plugin.php'; </code>
- * 
- * ## CREDIT
- * 
- * Forked from WordPress Github Plugin Updater by Joachin Kudish
- * @link https://github.com/jkudish/WordPress-GitHub-Plugin-Updater
- * @link http://jkudish.com
  */
 
 /**
