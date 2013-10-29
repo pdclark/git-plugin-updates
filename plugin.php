@@ -20,7 +20,8 @@ License: GPLv2
  * 
  * @var string Slug of the plugin on wordpress.org.
  */
-define( 'GPU_PLUGIN_SLUG', 'git-plugin-updates' );
+if ( !defined( 'GPU_PLUGIN_SLUG') )
+	define( 'GPU_PLUGIN_SLUG', 'git-plugin-updates' );
 
 /**
  * Used for error messages.
@@ -28,17 +29,20 @@ define( 'GPU_PLUGIN_SLUG', 'git-plugin-updates' );
  * 
  * @var string Nice name of the plugin.
  */
-define( 'GPU_PLUGIN_NAME', __( 'Git Plugin Updates', GPU_PLUGIN_SLUG ) );
+if ( !defined( 'GPU_PLUGIN_NAME') )
+	define( 'GPU_PLUGIN_NAME', __( 'Git Plugin Updates', GPU_PLUGIN_SLUG ) );
 
 /**
  * @var string Absolute path to this file.
  */
-define( 'GPU_PLUGIN_FILE', __FILE__ );
+if ( !defined( 'GPU_PLUGIN_FILE') )
+	define( 'GPU_PLUGIN_FILE', __FILE__ );
 
 /**
  * @var string Absolute path to the root plugin directory
  */
-define( 'GPU_PLUGIN_DIR', dirname( __FILE__ ) );
+if ( !defined( 'GPU_PLUGIN_DIR' ) )
+	define( 'GPU_PLUGIN_DIR', dirname( __FILE__ ) );
 
 /**
  * Load plugin dependencies and instantiate the plugin.
