@@ -350,7 +350,13 @@ class GPU_Controller {
 
 		global $wp_filesystem;
 
-		$plugin = $this->plugins[ dirname($hook_extra['plugin']) ];
+		$plugin_key = dirname($hook_extra['plugin']);
+
+		if ( !array_key_exists( $plugin_key, $this->plugins ) ) {
+			return $result;
+		}
+
+		$plugin = $this->plugins[ $plugin_key ];
 
 		// Move & Activate
 		$proper_destination = WP_PLUGIN_DIR . '/' . $plugin->folder_name;
@@ -361,7 +367,7 @@ class GPU_Controller {
 		// Output the update message
 		$fail		= __('The plugin has been updated, but could not be reactivated. Please reactivate it manually.', GPU_PLUGIN_SLUG );
 		$success	= __('Plugin reactivated successfully.', GPU_PLUGIN_SLUG );
-		
+
 		echo is_wp_error( $activate ) ? $fail : $success;
 		return $result;
 
