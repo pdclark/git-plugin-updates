@@ -15,7 +15,8 @@ class GPU_Updater_Github extends GPU_Updater {
 	public function __construct( $args ){
 		parent::__construct( $args );
 
-		add_filter( 'gpu_http_request_args', array( $this, 'maybe_authenticate_http' ) );
+		// Todo: Properly set branch from plugin header
+		$this->branch = $this->get_default_branch();
 	}
 
 	/**
@@ -60,7 +61,7 @@ class GPU_Updater_Github extends GPU_Updater {
 	 */
 	protected function api( $url ) {
 
-		$request_args = apply_filters( 'gpu_http_request_args', $this->git_request_args );
+		$request_args = $this->maybe_authenticate_http( $this->git_request_args );
 		$response = wp_remote_get( $this->get_api_url( $url ), $request_args );
 
 		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) != '200' ) {
@@ -112,7 +113,7 @@ class GPU_Updater_Github extends GPU_Updater {
 	protected function get_zip_url() {
 
 		return 'https://' . $this->host . '/' . $this->owner . '/' . $this->repository .
-		       '/archive/' . $this->get_default_branch() . '.zip';
+		       '/archive/' . $this->branch . '.zip';
 
 	}
 

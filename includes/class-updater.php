@@ -120,7 +120,9 @@ abstract class GPU_Updater {
 
 	public function ssl_disabled_urls( $urls ) {
 		
-		$urls[] = $this->homepage;
+		if ( !empty( $this->homepage ) ) {
+			$urls[] = $this->homepage;
+		}
 		$urls[] = $this->get_api_url( '/repos/:owner/:repo' );
 
 		return $urls;
@@ -157,7 +159,16 @@ abstract class GPU_Updater {
 			return false;
 		}
 
-		preg_match( '/^[ \t\/*#@]*Version\:\s*(.*)$/im', base64_decode( $response->content ), $matches );
+		// Todo: Handle this switch in the sub classes
+		if ( isset( $response->encoding ) && 'base64' == $response->encoding ) {
+			// Github
+			$content = base64_decode( $response->content );
+		}else {
+			// Bitbucket
+			$content = $response;
+		}
+
+		preg_match( '/^[ \t\/*#@]*Version\:\s*(.*)$/im', $content, $matches );
 
 		if ( ! empty( $matches[1] ) )
 			return $matches[1];
@@ -229,7 +240,7 @@ abstract class GPU_Updater {
 		$path = explode('/', $uri['path'] );
 
 		$this->host       = $uri['host'];
-		$this->username   = str_replace( '@', '%40', $uri['user'] );
+		$this->username   = str_replace( '%40', '@', $uri['user'] );
 		$this->password   = $uri['pass'];
 		$this->owner      = $path[1];
 		$this->repository = $path[2];
