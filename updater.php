@@ -9,11 +9,11 @@
  * @copyright Copyright (c) 2011, Joachim Kudish
  */
 
-if ( !class_exists('WPGitHubUpdater') ) :
+if ( !class_exists('Storm_Git_Updater') ) :
 
-add_action('admin_init', create_function('', 'global $WPGitHubUpdater; $WPGitHubUpdater = new WPGitHubUpdater();') );
+add_action('admin_init', create_function('', 'global $Storm_Git_Updater; $Storm_Git_Updater = new Storm_Git_Updater();') );
 
-class WPGitHubUpdater {
+class Storm_Git_Updater {
 
 	/**
 	 *	Whether to verify SSL for Git-related connections
@@ -118,8 +118,13 @@ class WPGitHubUpdater {
 	 *
 	 * @return array plugin header search terms
 	 */
-	public function extra_plugin_headers() {
-		return array( 'requires', 'tested', 'git uri' );
+	public function extra_plugin_headers( $headers ) {
+		
+		$headers['requires'] = 'requires';
+		$headers['tested'] = 'tested';
+		$headers['git uri'] = 'git uri';
+
+		return $headers;
 	}
 
 
@@ -174,12 +179,20 @@ class WPGitHubUpdater {
 			$parsed = parse_url( $meta['PluginURI'] );
 		}
 
+		$parsed['user'] = urldecode( $parsed['user'] );
+
 		switch( $parsed['host'] ) {
 			case 'github.com':
 			case 'www.github.com':
 				if ( !class_exists('WordPress_Github_Updater') ) { include 'transports/github.php'; }
 				list( /*nothing*/, $username, $repository ) = explode('/', $parsed['path'] );
 				return new WordPress_Github_Updater( array_merge($meta, array( 'username' => $username, 'repository' => $repository, )) );
+			break;
+			case 'bitbucket.org':
+			case 'www.bitbucket.org':
+				if ( !class_exists('WordPress_Bitbucket_Updater') ) { include 'transports/bitbucket.php'; }
+				list( /*nothing*/, $username, $repository ) = explode('/', $parsed['path'] );
+				return new WordPress_Bitbucket_Updater( array_merge($meta, array( 'username' => $username, 'repository' => $repository, 'user' => $parsed['user'], 'pass' => $parsed['pass'] )) );
 			break;
 		}
 
@@ -207,7 +220,7 @@ class WPGitHubUpdater {
 		if ( empty( $transient->last_checked ) && empty( $transient->checked ) )
 			return $transient;
 
-		foreach( $this->plugins as $plugin ) {
+		foreach( (array) $this->plugins as $plugin ) {
 			// check the version and decide if it's new
 			$update = version_compare( $plugin->new_version, $plugin->version );
 
@@ -240,7 +253,7 @@ class WPGitHubUpdater {
 	public function get_plugin_info( $false, $action, $response ) {
 		// Check if this call API is for the right plugin
 
-		if ( !array_key_exists($response->slug, $this->plugins) )
+		if ( !array_key_exists($response->slug, (array)$this->plugins) )
 			return false;
 
 		$plugin = $this->plugins[ $response->slug ];
