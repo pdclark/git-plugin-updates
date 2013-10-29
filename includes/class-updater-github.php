@@ -14,12 +14,16 @@ class GPU_Updater_Github extends GPU_Updater {
 	
 	public function __construct( $args ){
 		parent::__construct( $args );
+
+		add_filter( 'ghu_http_request_args', array( $this, 'maybe_authenticate_http' ) );
 	}
 
 	/**
 	 * Set repo host, owner, username, password, and repository from URI
 	 */
 	protected function set_repo_info( $plugin ) {
+
+		// parse_plugin_uri() defined in GPU_Updater
 		$uri  = self::parse_plugin_uri( $plugin );
 		$path = explode('/', $uri['path'] );
 
@@ -40,7 +44,8 @@ class GPU_Updater_Github extends GPU_Updater {
 	 * @link   https://github.com/afragen/github-updater
 	 */
 	protected function get_remote_info() {
-		$transient_key = GPU_Controller::OPTION_KEY . '-' . md5( $this->slug );
+		// Transients fail if key is longer than 45 characters
+		$transient_key = 'ghu-' . md5( $this->slug );
 
 		$remote = get_site_transient( $transient_key );
 
@@ -65,7 +70,9 @@ class GPU_Updater_Github extends GPU_Updater {
 	 * @return boolean|object
 	 */
 	protected function api( $url ) {
-		$response = wp_remote_get( $this->get_api_url( $url ) );
+
+		$request_args = apply_filters( 'ghu_http_request_args', $this->git_request_args );
+		$response = wp_remote_get( $this->get_api_url( $url ), $request_args );
 
 		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) != '200' ) {
 			return false;
@@ -126,8 +133,9 @@ class GPU_Updater_Github extends GPU_Updater {
 	 * @since 1.0
 	 * @return string $date the date
 	 */
-	public function get_last_updated() {
+	protected function get_last_updated() {
 		$_date = $this->get_remote_info();
+		if ( false === $_date ) { return false; }
 		return ( !empty($_date->updated_at) ) ? date( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
 	}
 
@@ -138,9 +146,21 @@ class GPU_Updater_Github extends GPU_Updater {
 	 * @since 1.0
 	 * @return string $description the description
 	 */
-	public function get_description() {
+	protected function get_description() {
 		$_description = $this->get_remote_info();
+		if ( false === $_description ) { return false; }
 		return ( !empty($_description->description) ) ? $_description->description : false;
+	}
+
+	public function maybe_authenticate_http( $args ) {
+		$username = apply_filters( 'gpu_username_github', false );
+		$password = apply_filters( 'gpu_password_github', false );
+
+		if ( $username && $password ) {
+			$args['headers']['Authorization'] = 'Basic ' . base64_encode( "$username:$password" );
+		}
+
+		return $args;
 	}
 
 }

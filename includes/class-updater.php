@@ -1,11 +1,6 @@
 <?php
 
 abstract class GPU_Updater {
-	
-	/**
-	 * @var array Arguments set in the constructor
-	 */
-	protected $args;
 
 	protected $name;
 	protected $slug;
@@ -21,6 +16,14 @@ abstract class GPU_Updater {
 	protected $homepage;
 	protected $requires;
 	protected $tested;
+
+	/**
+	 * @var array Settings for the Github request. Filter with ghu_http_request_args.
+	 */
+	var $git_request_args = array(
+		'timeout' => 5,
+		'sslverify' => false,
+	);
 
 	public function __construct( $args ){
 
@@ -110,7 +113,6 @@ abstract class GPU_Updater {
 		
 		$urls[] = $this->homepage;
 		$urls[] = $this->get_api_url( '/repos/:owner/:repo' );
-		$urls[] = $this->get_zip_url();
 
 		return $urls;
 	}
@@ -142,8 +144,9 @@ abstract class GPU_Updater {
 	 */
 	protected function get_remote_version() {
 		$response = $this->get_remote_info();
-		if ( ! $response )
+		if ( false === $response ) {
 			return false;
+		}
 
 		preg_match( '/^[ \t\/*#@]*Version\:\s*(.*)$/im', base64_decode( $response->content ), $matches );
 
@@ -167,8 +170,9 @@ abstract class GPU_Updater {
 		$response = $this->get_remote_info();
 
 		// If we can't contact API, then assume a sensible default in case the non-API part of GitHub is working.
-		if ( ! $response )
+		if ( false === $response ) {
 			return 'master';
+		}
 
 		// Assuming we've got some remote info, parse the 'url' field to get the last bit of the ref query string
 		$components = parse_url( $response->url, PHP_URL_QUERY );

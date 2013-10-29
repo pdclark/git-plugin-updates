@@ -14,12 +14,12 @@ class GPU_Controller {
 	/**
 	 * @var string Key for plugin options in wp_options table
 	 */
-	const OPTION_KEY = GPU_SLUG;
+	const OPTION_KEY = GPU_PLUGIN_SLUG;
 
 	/**
 	 * @var int How often should transients be updated, in seconds.
 	 */
-	protected static $update_interval;
+	public static $update_interval;
 
 	/**
 	 * @var array Options from wp_options
@@ -85,34 +85,28 @@ class GPU_Controller {
 	protected function init() {
 
 		$this->options = get_site_option( self::OPTION_KEY );
+		$this->clear_cache_if_debugging();
 
 		// Filter allows search results to be updated more or less frequently.
 		// Default is 60 minutes
 		GPU_Controller::$update_interval = apply_filters( 'gpu_update_interval', 60*60 );
 
-		add_action( 'admin_init', array( $this, 'clear_cache_if_debugging' ) );
-
+		// Add Git URI: to valid plugin headers
 		add_filter( 'extra_plugin_headers', array($this, 'extra_plugin_headers') );
 
+		// Check for plugin updates
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'pre_set_site_transient_update_plugins' ) );
-
-
-
-		// Todo: Move below methods into Updater class if appropriate
 
 		// Build Git plugin list
 		add_action( 'admin_init', array($this, 'load_plugins'), 20 );
 
 		// Plugin details screen
-		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
+		add_filter( 'plugins_api', array( $this, 'plugins_api' ), 10, 3 );
 
 		// Cleanup and activate plugins after update
 		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
 
-		// HTTP Timeout
-		add_filter( 'http_request_timeout', array( $this, 'http_request_timeout' ) );
-
-		add_filter( 'http_request_args', array($this, 'disable_git_ssl_verify'), 10, 2 );
+		add_filter( 'http_request_args', array( $this, 'disable_git_ssl_verify' ), 10, 2 );
 
 	}
 
@@ -158,8 +152,7 @@ class GPU_Controller {
 	 */
 	public function clear_cache_if_debugging() {
 		if ( ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
-			delete_site_transient( 'update_plugins' );
-			delete_site_transient( 'git_plugins' );
+			delete_site_transient( GPU_Controller::OPTION_KEY . '-plugin-objects' );
 		}
 	}
 
@@ -216,12 +209,14 @@ class GPU_Controller {
 	}
 
 	/**
-	 *	Build $this->plugins, a list of Github-hosted plugins based on installed plugin headers
+	 * Build $this->plugins, a list of Github-hosted plugins based on installed plugin headers
 	 *
 	 * @return void
 	 */
 	public function load_plugins( $plugins ) {
-		$this->plugins = get_site_transient( 'git_plugins' );
+		$transient_key = GPU_Controller::OPTION_KEY . '-plugin-objects';
+
+		$this->plugins = get_site_transient( $transient_key );
 
 		if ( false !== $this->plugins ) {
 			return;
@@ -231,56 +226,27 @@ class GPU_Controller {
 
 		foreach ( get_plugins() as $slug => $args ) {
 			$args = array_merge( array( 'slug' => $slug ), $args );
-
+			
 			$plugin = $this->get_plugin_updater_object( $args );
-			continue;
 
-			if (false === $plugin ) {
+			if ( false === $plugin ) {
 				continue;
 			}
 
-			// Using folder name as key for array_key_exists() check in $this->get_plugin_info()
-			$this->plugins[ $plugin->key ] = $repo;
+			// Using folder name as key for array_key_exists() check in $this->plugins_api()
+			$this->plugins[ $plugin->key ] = $plugin;
 
 		}
 
-		// Refresh plugin list and Git metadata every 6 hours
-		set_site_transient( 'git_plugins', $this->plugins, 60*60*6 );
+		// Refresh plugin list and Git metadata
+		set_site_transient( $transient_key, $this->plugins, self::$update_interval );
 
-	}
-
-
-	/**
-	 * Callback fn for the http_request_timeout filter
-	 *
-	 * @return int timeout value
-	 */
-	public function http_request_timeout() {
-		return 2;
-	}
-
-
-	/**
-	 * Disable SSL only for Git repo URLs
-	 *
-	 * @return array $args http_request_args
-	 */
-	public function disable_git_ssl_verify( $args, $url ) {
-		if ( empty( $this->plugins ) ) {
-			return;
-		}
-
-		if ( in_array( $url, apply_filters( 'gpu_ssl_disabled_urls', array() ) ) ) {
-			$args['sslverify'] = false; 
-		}
-
-		return $args;
 	}
 
 	/**
 	 * Return appropriate repository handler based on URI
 	 *
-	 * @return object
+	 * @return object|bool GPU_Updater_Github|GPU_Updater_Bitbucket|GPU_Updater_Gitweb|false
 	 */
 	public function get_plugin_updater_object( $args ) {
 
@@ -288,25 +254,45 @@ class GPU_Controller {
 			return new GPU_Updater_Github( $args );
 		}
 
-		// switch( $parsed['host'] ) {
-		// 	case 'github.com':
-		// 	case 'www.github.com':
-		// 		list( /*nothing*/, $username, $repository ) = explode('/', $parsed['path'] );
-		// 		return new GPU_Updater_Github( array_merge($args, array( 'username' => $username, 'repository' => $repository, )) );
-		// 	break;
-		// 	case 'bitbucket.org':
-		// 	case 'www.bitbucket.org':
-		// 		list( /*nothing*/, $username, $repository ) = explode('/', $parsed['path'] );
-		// 		return new GPU_Updater_Bitbucket( array_merge($args, array( 'username' => $username, 'repository' => $repository, 'user' => $parsed['user'], 'pass' => $parsed['pass'] )) );
-		// 	break;
-		// }
+		/*
+		if ( GPU_Updater_Bitbucket::updates_this_plugin( $args ) ) {
+			// list( /*nothing*!/, $username, $repository ) = explode('/', $parsed['path'] );
+			// return new GPU_Updater_Bitbucket( array_merge($args, array( 'username' => $username, 'repository' => $repository, 'user' => $parsed['user'], 'pass' => $parsed['pass'] )) );
+			return new GPU_Updater_Bitbucket( $args );
+		}
 
-		// if ( '.git' == substr($parsed['path'], -4) ) {
-		// 	return new GPU_Updater_Gitweb( array_merge( $args, $parsed ) );
-		// }
-
+		if ( GPU_Updater_Gitweb::updates_this_plugin( $args ) ) {
+			// if ( '.git' == substr($parsed['path'], -4) ) {
+			// 	return new GPU_Updater_Gitweb( array_merge( $args, $parsed ) );
+			// }
+			return new GPU_Updater_Gitweb( $args );
+		}
+		*/
 
 		return false;
+	}
+
+	/**
+	 * Disable SSL only for Git repo URLs
+	 *
+	 * @return array $args http_request_args
+	 */
+	public function disable_git_ssl_verify( $args, $url ) {
+
+		$ssl_disabled_urls = apply_filters( 'gpu_ssl_disabled_urls', array() );
+
+		if ( in_array( $url, $ssl_disabled_urls ) ) {
+			$args['sslverify'] = false; 
+		}
+
+		// Zip URLs within the disabled URLs
+		foreach ( $ssl_disabled_urls as $disabled_url ) {
+			if ( false !== strpos( $url, $disabled_url ) && '.zip' == substr( $url, -4 ) ) {
+				$args['sslverify'] = false; 
+			}
+		}
+
+		return $args;
 	}
 
 	/**
@@ -317,9 +303,9 @@ class GPU_Controller {
 	 * @param  object $args     Plugin arguments
 	 * @return object $response The plugin info
 	 */
-	public function get_plugin_info( $false, $action, $response ) {
-		// Check if this call API is for the right plugin
-
+	public function plugins_api( $false, $action, $response ) {
+		
+		// Check if this request is for one of our plugins
 		if ( !array_key_exists( $response->slug, (array)$this->plugins ) ) {
 			return false;
 		}
