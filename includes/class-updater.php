@@ -219,7 +219,22 @@ abstract class GPU_Updater {
 		);
 	}
 
-	abstract protected function set_repo_info( $plugin );
+	/**
+	 * Set repo host, owner, username, password, and repository from URI
+	 */
+	protected function set_repo_info( $plugin ) {
+
+		// parse_plugin_uri() defined in GPU_Updater
+		$uri  = self::parse_plugin_uri( $plugin );
+		$path = explode('/', $uri['path'] );
+
+		$this->host       = $uri['host'];
+		$this->username   = str_replace( '@', '%40', $uri['user'] );
+		$this->password   = $uri['pass'];
+		$this->owner      = $path[1];
+		$this->repository = $path[2];
+
+	}
 
 	abstract protected function api( $url );
 

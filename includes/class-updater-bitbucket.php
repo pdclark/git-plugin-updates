@@ -1,6 +1,6 @@
 <?php
 
-class GPU_Updater_Github extends GPU_Updater {
+class GPU_Updater_Bitbucket extends GPU_Updater {
 
 	/**
 	 * Static so we can access these values without instantiating the object.
@@ -8,12 +8,14 @@ class GPU_Updater_Github extends GPU_Updater {
 	 * @var array Git URI domain names this updater should be applied to.
 	 */
 	public static $valid_domain_names = array(
-		'github.com',
-		'www.github.com',
+		'bitbucket.org',
+		'www.bitbucket.org',
 	);
 	
 	public function __construct( $args ){
 		parent::__construct( $args );
+
+		FB::log($this, '$this');
 
 		add_filter( 'gpu_http_request_args', array( $this, 'maybe_authenticate_http' ) );
 	}
@@ -49,7 +51,7 @@ class GPU_Updater_Github extends GPU_Updater {
 	}
 
 	/**
-	 * Call the GitHub API and return a json decoded body.
+	 * Call the Bitbucket API and return a json decoded body.
 	 *
 	 * @author Andy Fragen, Codepress
 	 * @link   https://github.com/afragen/github-updater
@@ -102,7 +104,7 @@ class GPU_Updater_Github extends GPU_Updater {
 			$endpoint = add_query_arg( 'access_token', $this->access_token, $endpoint );
 
 		// If a branch has been given, only check that for the remote info.
-		// If it's not been given, GitHub will use the Default branch.
+		// If it's not been given, Bitbucket will use the Default branch.
 		if ( ! empty( $this->branch ) )
 			$endpoint = add_query_arg( 'ref', $this->branch, $endpoint );
 
@@ -116,24 +118,13 @@ class GPU_Updater_Github extends GPU_Updater {
 
 	}
 
-	/**
-	 * Get update date
-	 *
-	 * @return string $date the date
-	 */
-	// protected function get_last_updated() {
-	// 	$_date = $this->get_remote_info();
-	// 	if ( false === $_date ) { return false; }
-	// 	return ( !empty($_date->updated_at) ) ? date( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
-	// }
-
 	public function maybe_authenticate_http( $args ) {
 		if ( !empty( $this->access_token ) ) {
 			return $args;
 		}
 
-		$username = apply_filters( 'gpu_username_github', $this->username );
-		$password = apply_filters( 'gpu_password_github', $this->password );
+		$username = apply_filters( 'gpu_username_bitbucket', $this->username );
+		$password = apply_filters( 'gpu_password_bitbucket', $this->password );
 
 		if ( $username && $password ) {
 			$args['headers']['Authorization'] = 'Basic ' . base64_encode( "$username:$password" );
