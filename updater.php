@@ -1,37 +1,36 @@
 <?php
-
-// Prevent loading this file directly - Busted!
-if ( !defined('ABSPATH') )
-	die('-1');
-
-if ( ! class_exists( 'WPGitHubUpdater' ) ) :
-
 /**
+ * @package GithubUpdater
+ * @author Joachim Kudish @link http://jkudish.com
+ * @since 1.3
  * @version 1.4
  * @author Joachim Kudish <info@jkudish.com>
- * @link http://jkudish.com
- * @package GithubUpdater
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @copyright Copyright (c) 2011, Joachim Kudish
- *
- * GNU General Public License, Free Software Foundation
- * <http://creativecommons.org/licenses/GPL/2.0/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-class WPGitHubUpdater {
+
+if ( !class_exists('Storm_Git_Updater') ) :
+
+add_action('admin_init', create_function('', 'global $Storm_Git_Updater; $Storm_Git_Updater = new Storm_Git_Updater();') );
+
+class Storm_Git_Updater {
+
+	/**
+	 *	Whether to verify SSL for Git-related connections
+	 * Override with <code> add_filter('git_sslverify', create_function('', 'return false;') ); </code>
+	 */
+	var $ssl_verify = true;
+
+	/**
+	 *	List of URLs related to Git repositories.
+	 * Used by disable_git_ssl() method
+	 */
+	var $git_urls = array();
+
+	/**
+	 * Installed plugins that list Github as the Plugin URI. Includes metadata.
+	 */
+	var $plugins = array();
 
 	/**
 	 * Class Constructor
@@ -42,73 +41,65 @@ class WPGitHubUpdater {
 	 */
 	public function __construct( $config = array() ) {
 
-		global $wp_version;
-
-		$defaults = array(
-			'slug' => plugin_basename(__FILE__),
-			'proper_folder_name' => dirname( plugin_basename(__FILE__) ),
-			'api_url' => 'https://api.github.com/repos/jkudish/WordPress-GitHub-Plugin-Updater',
-			'raw_url' => 'https://raw.github.com/jkudish/WordPress-GitHub-Plugin-Updater/master',
-			'github_url' => 'https://github.com/jkudish/WordPress-GitHub-Plugin-Updater',
-			'zip_url' => 'https://github.com/jkudish/WordPress-GitHub-Plugin-Updater/zipball/master',
-			'sslverify' => true,
-			'requires' => $wp_version,
-			'tested' => $wp_version
-		);
-
-		$this->config = wp_parse_args( $config, $defaults );
-
-		$this->set_defaults();
+		$this->ssl_verify = apply_filters('git_sslverify', $this->ssl_verify);
 
 		if ( ( defined('WP_DEBUG') && WP_DEBUG ) || ( defined('WP_GITHUB_FORCE_UPDATE') || WP_GITHUB_FORCE_UPDATE ) )
-			add_action( 'init', array( $this, 'delete_transients' ) );
+			add_action( 'admin_init', array( $this, 'delete_transients' ), 11 );
 
+		// Build Git plugin list
+		add_action( 'admin_init', array($this, 'load_plugins'), 20 );
+		add_filter( 'extra_plugin_headers', array($this, 'extra_plugin_headers') );
+
+		// Check for update from Git API
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
 
-		// Hook into the plugin details screen
+		// Plugin details screen
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
+
+		// Cleanup and activate plugins after update
 		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
 
-		// set timeout
+		// HTTP Timeout
 		add_filter( 'http_request_timeout', array( $this, 'http_request_timeout' ) );
 		
-		// set sslverify for zip download
-		add_filter( 'http_request_args', array( $this, 'http_request_sslverify' ), 10, 2 );
+		// Maybe disable HTTP SSL Certificate Check for Git URLs
+		// If statement can likely be removed.
+		// @see https://github.com/jkudish/WordPress-GitHub-Plugin-Updater/issues/2#issuecomment-6654644
+		if ( false === $this->ssl_verify ) {
+			add_filter( 'http_request_args', array($this, 'disable_git_ssl_verify'), 10, 2 );
+		}
+
 	}
 
 
 	/**
-	 * Set defaults
+	 *	Build $this->plugins, a list of Github-hosted plugins based on installed plugin headers
 	 *
-	 * @since 1.2
 	 * @return void
 	 */
-	public function set_defaults() {
+	public function load_plugins( $plugins ) {
+		$this->plugins = get_site_transient( 'git_plugins' );
 
-		if ( ! isset( $this->config['new_version'] ) )
-			$this->config['new_version'] = $this->get_new_version();
+		if ( false !== $this->plugins ) {
+			return;
+		}
+		global $wp_version;
 
-		if ( ! isset( $this->config['last_updated'] ) )
-			$this->config['last_updated'] = $this->get_date();
+		foreach ( get_plugins() as $slug => $meta ) {
+			$repo = $this->get_repo_transport( array_merge( array('slug'=>$slug), $meta ) );
 
-		if ( ! isset( $this->config['description'] ) )
-			$this->config['description'] = $this->get_description();
+			if (false === $repo ) {
+				continue;
+			}
 
-		$plugin_data = $this->get_plugin_data();
-		if ( ! isset( $this->config['plugin_name'] ) )
-			$this->config['plugin_name'] = $plugin_data['Name'];
+			// Using folder name as key for array_key_exists() check in $this->get_plugin_info()
+			$this->plugins[ $repo->key ] = $repo;
 
-		if ( ! isset( $this->config['version'] ) )
-			$this->config['version'] = $plugin_data['Version'];
+		}
 
-		if ( ! isset( $this->config['author'] ) )
-			$this->config['author'] = $plugin_data['Author'];
+		// Refresh plugin list and Git metadata every 6 hours
+		set_site_transient( 'git_plugins', $this->plugins, 60*60*6 );
 
-		if ( ! isset( $this->config['homepage'] ) )
-			$this->config['homepage'] = $plugin_data['PluginURI'];
-
-		if ( ! isset( $this->config['readme'] ) )
-			$this->config['readme'] = 'README.md';
 	}
 
 
@@ -139,6 +130,47 @@ class WPGitHubUpdater {
 
 
 	/**
+	 * Additional headers
+	 *
+	 * @return array plugin header search terms
+	 */
+	public function extra_plugin_headers( $headers ) {
+		
+		$headers['requires'] = 'requires';
+		$headers['tested'] = 'tested';
+		$headers['git uri'] = 'git uri';
+
+		return $headers;
+	}
+
+
+	/**
+	 * Disable SSL only for git repo URLs, but no other HTTP requests
+	 *	Allows SSL to be disabled for zip are downloadeds outside plugin scope
+	 *
+	 * @return array $args http_request_args
+	 */
+	public function disable_git_ssl_verify($args, $url) {
+		if ( empty($this->plugins)) {
+			return;
+		}
+		if ( empty($this->git_urls) ) {
+			foreach( $this->plugins as $plugin ) {
+				$this->git_urls[] = $plugin->homepage;
+				$this->git_urls[] = $plugin->api_url;
+				$this->git_urls[] = $plugin->tags_url;
+				$this->git_urls[] = $plugin->zip_url;
+			}
+		} 
+		if ( in_array($url, $this->git_urls) ) {
+			$args['sslverify'] = false; 
+		}
+
+		return $args;
+	}
+
+
+	/**
 	 * Delete transients (runs when WP_DEBUG is on)
 	 * For testing purposes the site transient will be reset on each page load
 	 *
@@ -147,113 +179,46 @@ class WPGitHubUpdater {
 	 */
 	public function delete_transients() {
 		delete_site_transient( 'update_plugins' );
-		delete_site_transient( $this->config['slug'].'_new_version' );
-		delete_site_transient( $this->config['slug'].'_github_data' );
-		delete_site_transient( $this->config['slug'].'_changelog' );
+		delete_site_transient( 'git_plugins' );
 	}
 
 
 	/**
-	 * Get New Version from github
+	 * Return appropriate repository handler based on URI
 	 *
-	 * @since 1.0
-	 * @return int $version the version number
+	 * @return object
 	 */
-	public function get_new_version() {
-		$version = get_site_transient( $this->config['slug'].'_new_version' );
-
-		if ( !isset( $version ) || !$version || '' == $version ) {
-
-			$raw_response = wp_remote_get(
-				trailingslashit($this->config['raw_url']).$this->config['readme'],
-				array(
-					'sslverify' => $this->config['sslverify'],
-				)
-			);
-
-			if ( is_wp_error( $raw_response ) )
-				return false;
-
-			$__version	= explode( '~Current Version:', $raw_response['body'] );
-
-			if ( !isset($__version['1']) )
-				return false;
-
-			$_version	= explode( '~', $__version['1'] );
-			$version	= $_version[0];
-
-			// refresh every 6 hours
-			set_site_transient( $this->config['slug'].'_new_version', $version, 60*60*6 );
+	public function get_repo_transport( $meta ) {
+		if ( !empty( $meta['git uri'] ) ) {
+			$parsed = parse_url( $meta['git uri'] );
+		}else {
+			$parsed = parse_url( $meta['PluginURI'] );
 		}
 
-		return $version;
-	}
+		$parsed['user'] = urldecode( $parsed['user'] );
 
-
-	/**
-	 * Get GitHub Data from the specified repository
-	 *
-	 * @since 1.0
-	 * @return array $github_data the data
-	 */
-	public function get_github_data() {
-		$github_data = get_site_transient( $this->config['slug'].'_github_data' );
-
-		if ( ! isset( $github_data ) || ! $github_data || '' == $github_data ) {
-			$github_data = wp_remote_get(
-				$this->config['api_url'],
-				array(
-					'sslverify' => $this->config['sslverify'],
-				)
-			);
-
-			if ( is_wp_error( $github_data ) )
-				return false;
-
-			$github_data = json_decode( $github_data['body'] );
-
-			// refresh every 6 hours
-			set_site_transient( $this->config['slug'].'_github_data', $github_data, 60*60*6);
+		switch( $parsed['host'] ) {
+			case 'github.com':
+			case 'www.github.com':
+				if ( !class_exists('WordPress_Github_Updater') ) { include 'transports/github.php'; }
+				list( /*nothing*/, $username, $repository ) = explode('/', $parsed['path'] );
+				return new WordPress_Github_Updater( array_merge($meta, array( 'username' => $username, 'repository' => $repository, )) );
+			break;
+			case 'bitbucket.org':
+			case 'www.bitbucket.org':
+				if ( !class_exists('WordPress_Bitbucket_Updater') ) { include 'transports/bitbucket.php'; }
+				list( /*nothing*/, $username, $repository ) = explode('/', $parsed['path'] );
+				return new WordPress_Bitbucket_Updater( array_merge($meta, array( 'username' => $username, 'repository' => $repository, 'user' => $parsed['user'], 'pass' => $parsed['pass'] )) );
+			break;
 		}
 
-		return $github_data;
-	}
+		if ( '.git' == substr($parsed['path'], -4) ) {
+			if ( !class_exists('WordPress_Gitweb_Updater') ) { include 'transports/gitweb.php'; }
+			return new WordPress_Gitweb_Updater( array_merge( $meta, $parsed ) );
+		}
 
 
-	/**
-	 * Get update date
-	 *
-	 * @since 1.0
-	 * @return string $date the date
-	 */
-	public function get_date() {
-		$_date = $this->get_github_data();
-		return ( !empty($_date->updated_at) ) ? date( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
-	}
-
-
-	/**
-	 * Get plugin description
-	 *
-	 * @since 1.0
-	 * @return string $description the description
-	 */
-	public function get_description() {
-		$_description = $this->get_github_data();
-		return ( !empty($_description->description) ) ? $_description->description : false;
-	}
-
-
-	/**
-	 * Get Plugin data
-	 *
-	 * @since 1.0
-	 * @return object $data the data
-	 */
-	public function get_plugin_data() {
-		include_once( ABSPATH.'/wp-admin/includes/plugin.php' );
-		$data = get_plugin_data( WP_PLUGIN_DIR.'/'.$this->config['slug'] );
-		return $data;
+		return false;
 	}
 
 
@@ -268,22 +233,24 @@ class WPGitHubUpdater {
 
 		// Check if the transient contains the 'checked' information
 		// If not, just return its value without hacking it
-		if ( empty( $transient->checked ) )
+		if ( empty( $transient->last_checked ) && empty( $transient->checked ) )
 			return $transient;
 
-		// check the version and decide if it's new
-		$update = version_compare( $this->config['new_version'], $this->config['version'] );
+		foreach( (array) $this->plugins as $plugin ) {
+			// check the version and decide if it's new
+			$update = version_compare( $plugin->new_version, $plugin->version );
 
-		if ( 1 === $update ) {
-			$response = new stdClass;
-			$response->new_version = $this->config['new_version'];
-			$response->slug = $this->config['proper_folder_name'];
-			$response->url = $this->config['github_url'];
-			$response->package = $this->config['zip_url'];
+			if ( 1 === $update ) {
+				$response = new stdClass;
+				$response->new_version = $plugin->new_version;
+				$response->slug = $plugin->folder_name;
+				$response->url = $plugin->homepage;
+				$response->package = $plugin->zip_url;
 
-			// If response is false, don't alter the transient
-			if ( false !== $response )
-				$transient->response[ $this->config['slug'] ] = $response;
+				// If response is false, don't alter the transient
+				if ( false !== $response )
+					$transient->response[ $plugin->slug ] = $response;
+			}
 		}
 
 		return $transient;
@@ -300,22 +267,24 @@ class WPGitHubUpdater {
 	 * @return object $response the plugin info
 	 */
 	public function get_plugin_info( $false, $action, $response ) {
-
 		// Check if this call API is for the right plugin
-		if ( $response->slug != $this->config['slug'] )
+
+		if ( !array_key_exists($response->slug, (array)$this->plugins) )
 			return false;
 
-		$response->slug = $this->config['slug'];
-		$response->plugin_name  = $this->config['plugin_name'];
-		$response->version = $this->config['new_version'];
-		$response->author = $this->config['author'];
-		$response->homepage = $this->config['homepage'];
-		$response->requires = $this->config['requires'];
-		$response->tested = $this->config['tested'];
+		$plugin = $this->plugins[ $response->slug ];
+
+		$response->slug = $plugin->slug;
+		$response->plugin_name  = $plugin->name;
+		$response->version = $plugin->new_version;
+		$response->author = $plugin->author;
+		$response->homepage = $plugin->homepage;
+		$response->requires = $plugin->requires;
+		$response->tested = $plugin->tested;
 		$response->downloaded   = 0;
-		$response->last_updated = $this->config['last_updated'];
-		$response->sections = array( 'description' => $this->config['description'] );
-		$response->download_link = $this->config['zip_url'];
+		$response->last_updated = $plugin->last_updated;
+		$response->sections = array( 'description' => $plugin->description );
+		$response->download_link = $plugin->zip_url;
 
 		return $response;
 	}
@@ -335,11 +304,14 @@ class WPGitHubUpdater {
 
 		global $wp_filesystem;
 
+		$plugin = $this->plugins[ dirname($hook_extra['plugin']) ];
+
+
 		// Move & Activate
-		$proper_destination = WP_PLUGIN_DIR.'/'.$this->config['proper_folder_name'];
+		$proper_destination = WP_PLUGIN_DIR.'/'.$plugin->folder_name;
 		$wp_filesystem->move( $result['destination'], $proper_destination );
 		$result['destination'] = $proper_destination;
-		$activate = activate_plugin( WP_PLUGIN_DIR.'/'.$this->config['slug'] );
+		$activate = activate_plugin( WP_PLUGIN_DIR.'/'.$plugin->slug );
 
 		// Output the update message
 		$fail		= __('The plugin has been updated, but could not be reactivated. Please reactivate it manually.', 'github_plugin_updater');
