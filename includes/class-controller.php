@@ -305,7 +305,10 @@ class GPU_Controller {
 	 * @return object $response The plugin info
 	 */
 	public function plugins_api( $false, $action, $response ) {
-		
+		if ( 'query_plugins' == $action ) {
+			return $false;
+		}
+
 		// API sometimes passes full slug instead of just dirname
 		// e.g., on plugin_information page
 		if ( false === strpos( $response->slug, '/') ) {
