@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Definition of required Updater class structure.
+ * Methods shared by child updaters.
+ */
 abstract class GPU_Updater {
 
 	protected $name;

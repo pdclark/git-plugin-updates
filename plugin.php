@@ -45,8 +45,8 @@ if ( !defined( 'GPU_PLUGIN_DIR' ) )
 	define( 'GPU_PLUGIN_DIR', dirname( __FILE__ ) );
 
 /**
- * Load plugin dependencies and instantiate the plugin.
- * Checks PHP version. Deactivates plugin and links to instructions if running PHP 4.
+ * Loads plugin dependencies and instantiate the plugin.
+ * Deactivates plugin and links to instructions if running PHP 4.
  */
 function storm_git_plugin_updates_init() {
 	

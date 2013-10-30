@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Manage updates for plugins hosted on Bitbucket.
+ */
 class GPU_Updater_Bitbucket extends GPU_Updater {
 
 	/**

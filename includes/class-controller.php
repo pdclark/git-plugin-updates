@@ -1,6 +1,7 @@
 <?php
 /**
- * Controller for the plugin.
+ * The main plugin wrapper
+ * Sets up hooks, manages options, loads templates, instantiates other classes.
  * 
  * @author Paul Clark <http://pdclark.com>
  */

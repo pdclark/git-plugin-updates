@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Manage updates for plugins hosted on Github.
+ */
 class GPU_Updater_Github extends GPU_Updater {
 
 	/**
