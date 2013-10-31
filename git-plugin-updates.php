@@ -44,35 +44,22 @@ if ( !defined( 'GPU_PLUGIN_FILE') )
 if ( !defined( 'GPU_PLUGIN_DIR' ) )
 	define( 'GPU_PLUGIN_DIR', dirname( __FILE__ ) );
 
+// Be cautious, since this class might be included by multiple plugins.
+if ( !function_exists( 'storm_git_plugin_updates_init' ) && !class_exists( 'GPU_Controller' ) ) :
+
 /**
  * Load plugin dependencies and instantiate the plugin.
  * Checks PHP version. Deactivates plugin and links to instructions if running PHP 4.
  */
 function storm_git_plugin_updates_init() {
-	
-	// PHP Version Check
-	$php_is_outdated = version_compare( PHP_VERSION, '5.2', '<' );
+	global $wp_version;
 
-	// Only exit and warn if on admin page
-	$okay_to_exit = is_admin() && ( !defined('DOING_AJAX') || !DOING_AJAX );
-	
-	if ( $php_is_outdated ) {
-		if ( $okay_to_exit ) {
-			require_once ABSPATH . '/wp-admin/includes/plugin.php';
-			deactivate_plugins( __FILE__ );
-			wp_die( sprintf( __(
-				'%s requires PHP 5.2 or higher, as does WordPress 3.2 and higher. The plugin has now disabled itself. For information on upgrading, %ssee this article%s.', GHPS_PLUGIN_SLUG ),
-				GPU_PLUGIN_NAME,
-				'<a href="http://codex.wordpress.org/Switching_to_PHP5" target="_blank">',
-				'</a>'
-			) );
-		} else {
-			return;
+	if ( is_admin() ) {
+
+		// Don't crash sites running very old versions of PHP and WordPress.
+		if ( version_compare( $wp_version, '3.2', '<' ) ) {
+			require_once dirname( __FILE__ ) . '/includes/version-check.php';
 		}
-	}
-
-	// Be cautious, since this class might be included by multiple plugins.
-	if ( is_admin() && !class_exists( 'GPU_Controller') ) {
 
 		require_once dirname( __FILE__ ) . '/includes/class-controller.php';
 		require_once dirname( __FILE__ ) . '/includes/class-updater.php';
@@ -86,3 +73,5 @@ function storm_git_plugin_updates_init() {
 }
 
 add_action( 'plugins_loaded', 'storm_git_plugin_updates_init' );
+
+endif;
