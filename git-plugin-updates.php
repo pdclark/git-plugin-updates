@@ -45,11 +45,7 @@ if (
 	 * @var string Absolute path to this file.
 	 */
 	define( 'GPU_PLUGIN_FILE', __FILE__ );
-
-	/**
-	 * @var string Absolute path to the root plugin directory
-	 */
-	define( 'GPU_PLUGIN_DIR', dirname( __FILE__ ) );
+	
 
 	/**
 	 * Load plugin dependencies and instantiate the plugin.

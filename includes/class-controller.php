@@ -128,7 +128,7 @@ class GPU_Controller {
 	public static function get_template( $file, $args = array() ) {
 		extract( $args );
 
-		include GPU_PLUGIN_DIR . "/views/$file.php";
+		include dirname( dirname( __FILE__ ) ) . "/views/$file.php";
 
 	}
 
