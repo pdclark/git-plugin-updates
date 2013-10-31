@@ -32,12 +32,6 @@ class GPU_Controller {
 	protected $admin;
 
 	/**
-	 * @see self::disable_git_ssl()
-	 * @var array List of URLs related to Git repositories.
-	 */
-	var $git_urls = array();
-
-	/**
 	 * @var array Installed plugins that list a Git URI.
 	 */
 	var $plugins = array();
@@ -52,24 +46,6 @@ class GPU_Controller {
 		}       
 	}
 
-	/**
-	 * If a variable is accessed from outside the class,
-	 * return a value from method get_$var()
-	 * 
-	 * For example, $inbox->unread_count returns $inbox->get_unread_count()
-	 * 
-	 * @return pretty-much-anything
-	 */
-	public function __get( $var ) {
-		$method = 'get_' . $var;
-
-		if ( method_exists( $this, $method ) ) {
-			return $this->$method();
-		}else {
-			return $this->$var;
-		}
-	}
-	
 	public static function get_instance() {
 		if ( !is_a( self::$instance, __CLASS__ ) ) {
 			self::$instance = true;
