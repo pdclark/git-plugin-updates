@@ -20,9 +20,9 @@ License: GPLv2
  * Verify we're in wp-admin -- plugin doesn't need to load in front-end.
  */
 if (
-	!class_exists( 'GPU_Controller' )
+	is_admin()
+	&& !class_exists( 'GPU_Controller' )
 	&& version_compare( $wp_version, '3.2', '>=' )
-	&& is_admin()
 ) :
 
 	/**
