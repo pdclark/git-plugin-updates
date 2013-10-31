@@ -15,46 +15,41 @@ License: GPLv2
  */
 
 /**
- * Used for localization text-domain, which must match wp.org slug.
- * Used for wp-admin settings page slug.
- * 
- * @var string Slug of the plugin on wordpress.org.
- */
-if ( !defined( 'GPU_PLUGIN_SLUG') )
-	define( 'GPU_PLUGIN_SLUG', 'git-plugin-updates' );
-
-/**
- * Used for error messages.
- * Used for settings page title.
- * 
- * @var string Nice name of the plugin.
- */
-if ( !defined( 'GPU_PLUGIN_NAME') )
-	define( 'GPU_PLUGIN_NAME', __( 'Git Plugin Updates', GPU_PLUGIN_SLUG ) );
-
-/**
- * @var string Absolute path to this file.
- */
-if ( !defined( 'GPU_PLUGIN_FILE') )
-	define( 'GPU_PLUGIN_FILE', __FILE__ );
-
-/**
- * @var string Absolute path to the root plugin directory
- */
-if ( !defined( 'GPU_PLUGIN_DIR' ) )
-	define( 'GPU_PLUGIN_DIR', dirname( __FILE__ ) );
-
-
-/**
  * Verify that update library not already included by another plugin.
  * Verify that we're running WordPress 3.2 (which enforces PHP 5.2.4).
  * Verify we're in wp-admin -- plugin doesn't need to load in front-end.
  */
 if (
-	!function_exists( 'gpu_git_plugin_updates_init' ) && !class_exists( 'GPU_Controller' )
+	!class_exists( 'GPU_Controller' )
 	&& version_compare( $wp_version, '3.2', '>=' )
 	&& is_admin()
 ) :
+
+	/**
+	 * Used for localization text-domain, which must match wp.org slug.
+	 * Used for wp-admin settings page slug.
+	 * 
+	 * @var string Slug of the plugin on wordpress.org.
+	 */
+	define( 'GPU_PLUGIN_SLUG', 'git-plugin-updates' );
+
+	/**
+	 * Used for error messages.
+	 * Used for settings page title.
+	 * 
+	 * @var string Nice name of the plugin.
+	 */
+	define( 'GPU_PLUGIN_NAME', __( 'Git Plugin Updates', GPU_PLUGIN_SLUG ) );
+
+	/**
+	 * @var string Absolute path to this file.
+	 */
+	define( 'GPU_PLUGIN_FILE', __FILE__ );
+
+	/**
+	 * @var string Absolute path to the root plugin directory
+	 */
+	define( 'GPU_PLUGIN_DIR', dirname( __FILE__ ) );
 
 	/**
 	 * Load plugin dependencies and instantiate the plugin.
