@@ -1,16 +1,14 @@
 # Usage instructions
 
-The plugin can be either be activated in WordPress, or `plugin.php` can be included in your own plugin using `require_once 'git-plugin-updates/plugin.php';`.
+The plugin can be either be activated in WordPress, or can be packaged into your own plugin using `require_once 'git-plugin-updates/git-plugin-updates.php';`.
 
-Either way, the plugin will activate Github updates for every plugin with a Git or Bitbucket repository in its header:
+Either way, the plugin will activate updates for every plugin with a Git or Bitbucket repository in its header:
 
-	<pre>
 	/*
 	Plugin Name: Plugin Example
 	Plugin URI: https://github.com/brainstormmedia/git-plugin-updates
 	Git URI: https://github.com/brainstormmedia/git-plugin-updates
 	*/
-	</pre>
 
 Either `Plugin URI` or `Git URI` can be set to your repository address. You don't need both.
 
