@@ -365,8 +365,8 @@ class GPU_Controller {
 		$activate = activate_plugin( WP_PLUGIN_DIR . '/' . $plugin->slug );
 
 		// Output the update message
-		$fail		= __('The plugin has been updated, but could not be reactivated. Please reactivate it manually.', GPU_PLUGIN_SLUG );
-		$success	= __('Plugin reactivated successfully.', GPU_PLUGIN_SLUG );
+		$fail		= __('The plugin has been updated, but could not be reactivated. Please reactivate it manually.', 'git-plugin-updates' );
+		$success	= __('Plugin reactivated successfully.', 'git-plugin-updates' );
 
 		echo is_wp_error( $activate ) ? $fail : $success;
 		return $result;

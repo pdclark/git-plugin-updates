@@ -26,7 +26,6 @@ if (
 ) :
 
 	/**
-	 * Used for localization text-domain, which must match wp.org slug.
 	 * Used for wp-admin settings page slug.
 	 * 
 	 * @var string Slug of the plugin on wordpress.org.
@@ -39,7 +38,7 @@ if (
 	 * 
 	 * @var string Nice name of the plugin.
 	 */
-	define( 'GPU_PLUGIN_NAME', __( 'Git Plugin Updates', GPU_PLUGIN_SLUG ) );
+	define( 'GPU_PLUGIN_NAME', __( 'Git Plugin Updates', 'git-plugin-updates' ) );
 
 	/**
 	 * @var string Absolute path to this file.
