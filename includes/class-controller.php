@@ -12,9 +12,27 @@ class GPU_Controller {
 	private static $instance = false;
 
 	/**
-	 * @var string Key for plugin options in wp_options table
+	 * Used for error messages.
+	 * Used for settings page title.
+	 * 
+	 * @var string Nice name of the plugin.
 	 */
-	const OPTION_KEY = GPU_PLUGIN_SLUG;
+	public static $plugin_name;
+
+	/**
+	 * @var string Slug of the plugin on wordpress.org.
+	 */
+	public static $plugin_slug;
+
+	/**
+	 * @var string Key for plugin options in wp_options table.
+	 */
+	public static $option_key;
+
+	/**
+	 * @var string Path to the main plugin file.
+	 **/
+	public static $plugin_file;
 
 	/**
 	 * @var int How often should transients be updated, in seconds.
@@ -70,11 +88,11 @@ class GPU_Controller {
 		}
 	}
 	
-	public static function get_instance() {
+	public static function get_instance( $args ) {
 		if ( !is_a( self::$instance, __CLASS__ ) ) {
 			self::$instance = true;
 			self::$instance = new self();
-			self::$instance->init();
+			self::$instance->init( $args );
 		}
 		return self::$instance;
 	}
@@ -82,14 +100,18 @@ class GPU_Controller {
 	/**
 	 * Initial setup. Called by get_instance.
 	 */
-	protected function init() {
+	protected function init( $args ) {
 
-		$this->options = get_site_option( self::OPTION_KEY );
+		foreach ( array( 'plugin_slug', 'plugin_name', 'option_key', 'plugin_file', 'update_interval' ) as $var ) {
+			if ( isset( $args[$var] ) ) {
+				self::${$var} = $args[$var];
+			}else {
+				trigger_error( __CLASS__ . " requires $var be provided in arguments.", E_USER_WARNING );
+			}
+		}
+
+		$this->options = get_site_option( self::$option_key );
 		$this->clear_cache_if_debugging();
-
-		// Filter allows search results to be updated more or less frequently.
-		// Default is 60 minutes
-		GPU_Controller::$update_interval = apply_filters( 'gpu_update_interval', 60*60 );
 
 		// Add Git URI: to valid plugin headers
 		add_filter( 'extra_plugin_headers', array($this, 'extra_plugin_headers') );
@@ -153,7 +175,7 @@ class GPU_Controller {
 	public function clear_cache_if_debugging() {
 		if ( ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			delete_site_transient( 'update_plugins' ); // WordPress update check
-			delete_site_transient( GPU_Controller::OPTION_KEY . '-plugin-objects' );
+			delete_site_transient( GPU_Controller::$option_key . '-plugin-objects' );
 		}
 	}
 
@@ -216,7 +238,7 @@ class GPU_Controller {
 	 * @return void
 	 */
 	public function load_plugins( $plugins ) {
-		$transient_key = GPU_Controller::OPTION_KEY . '-plugin-objects';
+		$transient_key = GPU_Controller::$option_key . '-plugin-objects';
 
 		$this->plugins = get_site_transient( $transient_key );
 

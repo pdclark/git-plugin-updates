@@ -23,28 +23,7 @@ if (
 	is_admin()
 	&& !class_exists( 'GPU_Controller' )
 	&& version_compare( $wp_version, '3.2', '>=' )
-) :
-
-	/**
-	 * Used for wp-admin settings page slug.
-	 * 
-	 * @var string Slug of the plugin on wordpress.org.
-	 */
-	define( 'GPU_PLUGIN_SLUG', 'git-plugin-updates' );
-
-	/**
-	 * Used for error messages.
-	 * Used for settings page title.
-	 * 
-	 * @var string Nice name of the plugin.
-	 */
-	define( 'GPU_PLUGIN_NAME', __( 'Git Plugin Updates', 'git-plugin-updates' ) );
-
-	/**
-	 * @var string Absolute path to this file.
-	 */
-	define( 'GPU_PLUGIN_FILE', __FILE__ );
-	
+) :	
 
 	/**
 	 * Load plugin dependencies and instantiate the plugin.
@@ -56,7 +35,13 @@ if (
 		require_once dirname( __FILE__ ) . '/includes/class-updater-github.php';
 		require_once dirname( __FILE__ ) . '/includes/class-updater-bitbucket.php';
 
-		GPU_Controller::get_instance();
+		GPU_Controller::get_instance( array(
+			'plugin_name'     => 'Git Plugin Updates',
+			'plugin_slug'     => 'git-plugin-updates',
+			'option_key'      => 'git-plugin-updates',
+			'plugin_file'     => __FILE__,
+			'update_interval' => apply_filters( 'gpu_update_interval', 60*60 ),
+		) );
 
 	}
 
