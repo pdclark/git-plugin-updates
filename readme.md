@@ -1,6 +1,8 @@
 # Usage instructions
 
-The plugin can be either be activated in WordPress, or can be packaged into your own plugin using `require_once 'git-plugin-updates/git-plugin-updates.php';`.
+The plugin can be either be activated in WordPress, or can be packaged into your own plugin using:
+
+	require_once 'git-plugin-updates/git-plugin-updates.php';
 
 Either way, the plugin will activate updates for every plugin with a Git or Bitbucket repository in its header:
 
@@ -13,7 +15,9 @@ Either way, the plugin will activate updates for every plugin with a Git or Bitb
 Either `Plugin URI` or `Git URI` can be set to your repository address. You don't need both.
 
 For private repos, you can use the URI format:
-`https://username:password@bitbucket.org/brainstormmedia/git-plugin-updates`
+
+	https://username:password@bitbucket.org/brainstormmedia/git-plugin-updates
+
 
 # Changelog
 
@@ -49,10 +53,11 @@ For private repos, you can use the URI format:
 ### 1.0
 * Initial Public Release
 
+
 # Credits
 
 This plugin is written and maintained by [Paul Clark](http://pdclark.com "pdclark").
 
 It was forked from [WordPress Github Plugin Updater](https://github.com/jkudish/WordPress-GitHub-Plugin-Updater) by [Joachim Kudish](http://jkudish.com "Joachim Kudish").
 
-It has been updated with some methods from [Github Updater](https://github.com/afragen/github-updater) by [Andy Fragen](https://github.com/afragen "Andy Fragen, Codepress").
+It has been updated with methods from [Github Updater](https://github.com/afragen/github-updater) by [Andy Fragen](https://github.com/afragen "Andy Fragen, Codepress") and [@GaryJones](https://github.com/garyjones).
