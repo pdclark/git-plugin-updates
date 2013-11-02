@@ -12,9 +12,24 @@ class GPU_Controller {
 	private static $instance = false;
 
 	/**
+	 * Used for error messages.
+	 * Used for settings page title.
+	 * 
+	 * @var string Nice name of the plugin.
+	 */
+	const PLUGIN_NAME = 'Git Plugin Updates';
+
+	/**
+	 * Used for wp-admin settings page slug.
+	 * 
+	 * @var string Slug of the plugin on wordpress.org.
+	 */
+	const PLUGIN_SLUG = 'git-plugin-updates';
+
+	/**
 	 * @var string Key for plugin options in wp_options table
 	 */
-	const OPTION_KEY = GPU_PLUGIN_SLUG;
+	const OPTION_KEY = 'git-plugin-updates';
 
 	/**
 	 * @var int How often should transients be updated, in seconds.
