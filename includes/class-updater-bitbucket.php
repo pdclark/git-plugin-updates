@@ -128,7 +128,7 @@ class GPU_Updater_Bitbucket extends GPU_Updater {
 
 	protected function get_zip_url() {
 
-		return 'https://' . $this->host . '/' . $this->owner . '/' . $this->repository .
+		return 'https://bitbucket.org/' . $this->owner . '/' . $this->repository .
 		       '/get/' . $this->branch . '.zip';
 
 	}
