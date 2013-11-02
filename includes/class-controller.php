@@ -124,19 +124,6 @@ class GPU_Controller {
 	}
 
 	/**
-	 * Log data to FireBug using FirePHP
-	 * 
-	 * @link http://getfirebug.com/
-	 * @link http://www.firephp.org/
-	 * @return void
-	 */
-	public function log( $variable, $label='' ) {
-		if ( class_exists('FB') && defined('WP_DEBUG') && WP_DEBUG ) {
-			FB::log( $variable, $label );
-		}
-	}
-
-	/**
 	 * Clear transient caches if WP_DEBUG is enabled
 	 * 
 	 * @return void
