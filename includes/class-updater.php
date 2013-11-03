@@ -238,9 +238,9 @@ abstract class GPU_Updater {
 		// parse_plugin_uri() defined in GPU_Updater
 		$uri  = self::parse_plugin_uri( $plugin );
 		$path = explode('/', $uri['path'] );
+		$this->host       = $uri['host'];
 
 		if ( isset( $uri['user'], $uri['pass'] ) ) {		
-			$this->host       = $uri['host'];
 			$this->username   = str_replace( '%40', '@', $uri['user'] );
 			$this->password   = $uri['pass'];
 		}
