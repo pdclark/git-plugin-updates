@@ -12,9 +12,24 @@ class GPU_Controller {
 	private static $instance = false;
 
 	/**
+	 * Used for error messages.
+	 * Used for settings page title.
+	 * 
+	 * @var string Nice name of the plugin.
+	 */
+	const PLUGIN_NAME = 'Git Plugin Updates';
+
+	/**
+	 * Used for wp-admin settings page slug.
+	 * 
+	 * @var string Slug of the plugin on wordpress.org.
+	 */
+	const PLUGIN_SLUG = 'git-plugin-updates';
+
+	/**
 	 * @var string Key for plugin options in wp_options table
 	 */
-	const OPTION_KEY = GPU_PLUGIN_SLUG;
+	const OPTION_KEY = 'git-plugin-updates';
 
 	/**
 	 * @var int How often should transients be updated, in seconds.
@@ -106,19 +121,6 @@ class GPU_Controller {
 
 		include dirname( dirname( __FILE__ ) ) . "/views/$file.php";
 
-	}
-
-	/**
-	 * Log data to FireBug using FirePHP
-	 * 
-	 * @link http://getfirebug.com/
-	 * @link http://www.firephp.org/
-	 * @return void
-	 */
-	public function log( $variable, $label='' ) {
-		if ( class_exists('FB') && defined('WP_DEBUG') && WP_DEBUG ) {
-			FB::log( $variable, $label );
-		}
 	}
 
 	/**

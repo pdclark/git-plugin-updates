@@ -1,10 +1,6 @@
 # Usage instructions
 
-The plugin can be either be activated in WordPress, or can be packaged into your own plugin using:
-
-	require_once 'git-plugin-updates/git-plugin-updates.php';
-
-Either way, the plugin will activate updates for every plugin with a Git or Bitbucket repository in its header:
+This plugin will activate updates for every plugin with a Git or Bitbucket repository in its header:
 
 	/*
 	Plugin Name: Plugin Example
@@ -18,6 +14,20 @@ For private repos, you can use the URI format:
 
 	https://username:password@bitbucket.org/brainstormmedia/git-plugin-updates
 
+### Using as a library in your own plugins
+
+Ideally, Git Plugin Updates runs as a stand-alone plugin. However, if you would like to bundle it as a package in your own plugins to make sure updates over Git are enabled by default, you may do so by moving `git-plugin-updates` into your plugin directory, then activating updates with this code:
+
+	add_action( 'plugins_loaded', 'myplugin_git_updater' );
+
+	function myplugin_git_updater() {
+		if ( is_admin() && !class_exists( 'GPU_Controller' ) ) {
+			require_once dirname( __FILE__ ) . '/git-plugin-updates/git-plugin-updates.php';
+			add_action( 'plugins_loaded', 'GPU_Controller::get_instance', 20 );
+		}
+	}
+
+This method allows your plugin to update over Git, and if Git Plugin Updates is installed as a plugin later, only the stand-alone-plugin copy will load.
 
 # Changelog
 
