@@ -96,7 +96,7 @@ abstract class GPU_Updater {
 
 		$uri = static::parse_plugin_uri( $plugin );
 
-		if ( in_array( $uri['host'], static::$valid_domain_names ) ) {
+		if ( isset( $uri['host'] ) && in_array( $uri['host'], static::$valid_domain_names ) ) {
 			return true;
 		}
 		return false;
@@ -238,10 +238,13 @@ abstract class GPU_Updater {
 		// parse_plugin_uri() defined in GPU_Updater
 		$uri  = self::parse_plugin_uri( $plugin );
 		$path = explode('/', $uri['path'] );
-
 		$this->host       = $uri['host'];
-		$this->username   = str_replace( '%40', '@', $uri['user'] );
-		$this->password   = $uri['pass'];
+
+		if ( isset( $uri['user'], $uri['pass'] ) ) {		
+			$this->username   = str_replace( '%40', '@', $uri['user'] );
+			$this->password   = $uri['pass'];
+		}
+
 		$this->owner      = $path[1];
 		$this->repository = $path[2];
 
