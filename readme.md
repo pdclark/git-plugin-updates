@@ -31,6 +31,14 @@ This method allows your plugin to update over Git, and if Git Plugin Updates is 
 
 # Changelog
 
+### 2.0.1
+
+* New: Updater ran as plugin overrides and prevents load of additional updaters included as libraries.
+* New: Cleaner readme code examples.
+* New: Ignore `Plugin URI` header by default to avoid conflicts with wordpress.org. Override with `add_filter( 'gpu_use_plugin_uri_header' '__return_true' );`
+* Fix: Don't use variables for text-domains. See [Internationalization: You're probably doing it wrong](http://ottopress.com/2012/internationalization-youre-probably-doing-it-wrong/).
+* Minor: Code cleanup. Simplify plugin load. Remove unused `log` and `__get` methods. Remove variable github and bitbucket hosts. Move constants into `GPU_Controller`. Reorder pre-load checks in order of liklihood.
+
 ### 2.0
 * Rewrite to support Github as well as Bitbucket
 * Updates enabled on plugins by including a Git repository address in the Plugin Header under `Plugin URI` or `Git URI`.
