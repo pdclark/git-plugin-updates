@@ -1,6 +1,7 @@
 <?php
 /**
- * Controller for the plugin.
+ * The main plugin wrapper
+ * Sets up hooks, manages options, loads templates, instantiates other classes.
  * 
  * @author Paul Clark <http://pdclark.com>
  */
@@ -282,7 +283,10 @@ class GPU_Controller {
 	 * @return object $response The plugin info
 	 */
 	public function plugins_api( $false, $action, $response ) {
-		
+		if ( 'query_plugins' == $action ) {
+			return $false;
+		}
+
 		// API sometimes passes full slug instead of just dirname
 		// e.g., on plugin_information page
 		if ( false === strpos( $response->slug, '/') ) {

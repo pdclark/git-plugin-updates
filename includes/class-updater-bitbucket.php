@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Manage updates for plugins hosted on Bitbucket.
+ */
 class GPU_Updater_Bitbucket extends GPU_Updater {
 
 	/**
@@ -24,8 +26,6 @@ class GPU_Updater_Bitbucket extends GPU_Updater {
 
 		// Remove .git extension
 		$this->repository = str_replace( '.git', '', $this->repository );
-
-		add_filter( 'http_request_args', array( $this, 'maybe_authenticate_zip_url' ), 10, 2 );
 	}
 
 	/**
@@ -142,20 +142,6 @@ class GPU_Updater_Bitbucket extends GPU_Updater {
 		return array(
 			'description' => '<pre>Plugin details not yet supported for Bitbucket repositories.</pre>',
 		);
-	}
-
-	/**
-	 * Disable SSL only for Git repo URLs
-	 *
-	 * @return array $args http_request_args
-	 */
-	public function maybe_authenticate_zip_url( $args, $url ) {
-
-		if ( $url == $this->get_zip_url() ) {
-			$args = $this->maybe_authenticate_http( $args );
-		}
-
-		return $args;
 	}
 
 	public function maybe_authenticate_http( $args ) {
