@@ -114,7 +114,7 @@ class GPU_Updater_Github extends GPU_Updater {
 
 	protected function get_zip_url() {
 
-		return 'https://' . $this->host . '/' . $this->owner . '/' . $this->repository .
+		return 'https://github.com/' . $this->owner . '/' . $this->repository .
 		       '/archive/' . $this->branch . '.zip';
 
 	}

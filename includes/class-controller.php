@@ -13,9 +13,24 @@ class GPU_Controller {
 	private static $instance = false;
 
 	/**
+	 * Used for error messages.
+	 * Used for settings page title.
+	 * 
+	 * @var string Nice name of the plugin.
+	 */
+	const PLUGIN_NAME = 'Git Plugin Updates';
+
+	/**
+	 * Used for wp-admin settings page slug.
+	 * 
+	 * @var string Slug of the plugin on wordpress.org.
+	 */
+	const PLUGIN_SLUG = 'git-plugin-updates';
+
+	/**
 	 * @var string Key for plugin options in wp_options table
 	 */
-	const OPTION_KEY = GPU_PLUGIN_SLUG;
+	const OPTION_KEY = 'git-plugin-updates';
 
 	/**
 	 * @var int How often should transients be updated, in seconds.
@@ -33,12 +48,6 @@ class GPU_Controller {
 	protected $admin;
 
 	/**
-	 * @see self::disable_git_ssl()
-	 * @var array List of URLs related to Git repositories.
-	 */
-	var $git_urls = array();
-
-	/**
 	 * @var array Installed plugins that list a Git URI.
 	 */
 	var $plugins = array();
@@ -53,24 +62,6 @@ class GPU_Controller {
 		}       
 	}
 
-	/**
-	 * If a variable is accessed from outside the class,
-	 * return a value from method get_$var()
-	 * 
-	 * For example, $inbox->unread_count returns $inbox->get_unread_count()
-	 * 
-	 * @return pretty-much-anything
-	 */
-	public function __get( $var ) {
-		$method = 'get_' . $var;
-
-		if ( method_exists( $this, $method ) ) {
-			return $this->$method();
-		}else {
-			return $this->$var;
-		}
-	}
-	
 	public static function get_instance() {
 		if ( !is_a( self::$instance, __CLASS__ ) ) {
 			self::$instance = true;
@@ -129,21 +120,8 @@ class GPU_Controller {
 	public static function get_template( $file, $args = array() ) {
 		extract( $args );
 
-		include GPU_PLUGIN_DIR . "/views/$file.php";
+		include dirname( dirname( __FILE__ ) ) . "/views/$file.php";
 
-	}
-
-	/**
-	 * Log data to FireBug using FirePHP
-	 * 
-	 * @link http://getfirebug.com/
-	 * @link http://www.firephp.org/
-	 * @return void
-	 */
-	public function log( $variable, $label='' ) {
-		if ( class_exists('FB') && defined('WP_DEBUG') && WP_DEBUG ) {
-			FB::log( $variable, $label );
-		}
 	}
 
 	/**
@@ -369,8 +347,8 @@ class GPU_Controller {
 		$activate = activate_plugin( WP_PLUGIN_DIR . '/' . $plugin->slug );
 
 		// Output the update message
-		$fail		= __('The plugin has been updated, but could not be reactivated. Please reactivate it manually.', GPU_PLUGIN_SLUG );
-		$success	= __('Plugin reactivated successfully.', GPU_PLUGIN_SLUG );
+		$fail		= __('The plugin has been updated, but could not be reactivated. Please reactivate it manually.', 'git-plugin-updates' );
+		$success	= __('Plugin reactivated successfully.', 'git-plugin-updates' );
 
 		echo is_wp_error( $activate ) ? $fail : $success;
 		return $result;

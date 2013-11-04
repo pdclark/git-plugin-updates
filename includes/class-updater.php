@@ -116,7 +116,7 @@ abstract class GPU_Updater {
 
 		if ( !empty( $plugin['Git URI'] ) ) {
 			$url = parse_url( $plugin['Git URI'] );
-		}else {
+		}elseif ( apply_filters( 'gpu_use_plugin_uri_header', false ) ) {
 			$url = parse_url( $plugin['PluginURI'] );
 		}
 
