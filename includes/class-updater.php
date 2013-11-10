@@ -116,7 +116,7 @@ abstract class GPU_Updater {
 
 		if ( !empty( $plugin['Git URI'] ) ) {
 			$url = parse_url( $plugin['Git URI'] );
-		}elseif ( apply_filters( 'gpu_use_plugin_uri_header', false ) ) {
+		} else {
 			$url = parse_url( $plugin['PluginURI'] );
 		}
 
@@ -199,6 +199,13 @@ abstract class GPU_Updater {
 		if ( false === $response ) {
 			return 'master';
 		}
+
+		$content = base64_decode( $response->content );
+
+		preg_match( '/^[ \t\/*#@]*Git.* Branch\:\s*(.*)$/im', $content, $matches );
+
+		if ( ! empty( $matches[1] ) )
+			return $matches[1];
 
 		// Assuming we've got some remote info, parse the 'url' field to get the last bit of the ref query string
 		$components = parse_url( $response->url, PHP_URL_QUERY );
