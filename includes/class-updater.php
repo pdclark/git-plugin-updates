@@ -120,6 +120,7 @@ abstract class GPU_Updater {
 			$url = parse_url( $plugin['PluginURI'] );
 		}
 
+		if ( empty( $url ) ) return;
 		return $url;
 	}
 
