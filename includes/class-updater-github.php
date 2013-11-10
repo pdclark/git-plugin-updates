@@ -117,7 +117,7 @@ class GPU_Updater_Github extends GPU_Updater {
 		if ( ! empty( $this->branch ) )
 			return 'https://github.com/' . $this->owner . '/' . $this->repository .
 		       '/archive/' . $this->branch . '.zip';
-		
+
 		return 'https://github.com/' . $this->owner . '/' . $this->repository .
 		       '/archive/master.zip';
 

@@ -121,6 +121,7 @@ abstract class GPU_Updater {
 		}
 
 		if ( empty( $url ) ) return;
+
 		return $url;
 	}
 
