@@ -153,6 +153,26 @@ abstract class GPU_Updater {
 	}
 
 	/**
+	 * Retrieves the local branch from the file header of the plugin
+	 *
+	 * @author Andy Fragen, Codepress
+	 * @link   https://github.com/afragen/github-updater
+	 * 
+	 * @return string|boolean Version of installed plugin, false if not determined.
+	 */
+	protected function get_local_branch() {
+		$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->slug );
+
+		if ( ! empty( $data['Git Branch'] ) )
+			return $data['Git Branch'];
+
+		if ( ! empty( $data['GitHub Branch'] ) )
+			return $data['GitHub Branch'];
+
+		return false;
+	}
+
+	/**
 	 * Retrieve the remote version from the file header of the plugin
 	 *
 	 * @author Andy Fragen, Codepress
@@ -200,13 +220,6 @@ abstract class GPU_Updater {
 		if ( false === $response ) {
 			return 'master';
 		}
-
-		$content = base64_decode( $response->content );
-
-		preg_match( '/^[ \t\/*#@]*Git.* Branch\:\s*(.*)$/im', $content, $matches );
-
-		if ( ! empty( $matches[1] ) )
-			return $matches[1];
 
 		// Assuming we've got some remote info, parse the 'url' field to get the last bit of the ref query string
 		$components = parse_url( $response->url, PHP_URL_QUERY );
