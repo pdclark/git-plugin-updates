@@ -144,6 +144,8 @@ class GPU_Controller {
 	public function extra_plugin_headers( $headers ) {
 		$headers[] = 'Git URI';
 		$headers[] = 'Git Branch';
+		$headers[] = 'GitHub Plugin URI';
+		$headers[] = 'GitHub Branch';
 
 		return $headers;
 	}
@@ -207,7 +209,7 @@ class GPU_Controller {
 
 		foreach ( get_plugins() as $slug => $args ) {
 			$args = array_merge( array( 'slug' => $slug ), $args );
-			
+
 			$plugin = $this->get_plugin_updater_object( $args );
 
 			if ( false === $plugin ) {
