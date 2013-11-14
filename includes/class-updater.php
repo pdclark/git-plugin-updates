@@ -155,10 +155,10 @@ abstract class GPU_Updater {
 	/**
 	 * Retrieves the local branch from the file header of the plugin
 	 *
-	 * @author Andy Fragen, Codepress
+	 * @author Andy Fragen
 	 * @link   https://github.com/afragen/github-updater
 	 * 
-	 * @return string|boolean Version of installed plugin, false if not determined.
+	 * @return string|boolean default branch of installed plugin, false if not determined.
 	 */
 	protected function get_local_branch() {
 		$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->slug );
