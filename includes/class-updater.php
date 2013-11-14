@@ -119,7 +119,7 @@ abstract class GPU_Updater {
 		}elseif ( apply_filters( 'gpu_use_plugin_uri_header', false ) ) {
 			$url = parse_url( $plugin['PluginURI'] );
 		}
-
+                if(isset($url))
 		return $url;
 	}
 
