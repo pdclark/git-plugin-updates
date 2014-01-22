@@ -116,9 +116,11 @@ abstract class GPU_Updater {
 
 		if ( !empty( $plugin['Git URI'] ) ) {
 			$url = parse_url( $plugin['Git URI'] );
-		}elseif ( apply_filters( 'gpu_use_plugin_uri_header', false ) ) {
+		} else {
 			$url = parse_url( $plugin['PluginURI'] );
 		}
+
+		if ( empty( $url ) ) return;
 
 		return $url;
 	}
@@ -146,6 +148,26 @@ abstract class GPU_Updater {
 
 		if ( ! empty( $data['Version'] ) )
 			return $data['Version'];
+
+		return false;
+	}
+
+	/**
+	 * Retrieves the local branch from the file header of the plugin
+	 *
+	 * @author Andy Fragen
+	 * @link   https://github.com/afragen/github-updater
+	 * 
+	 * @return string|boolean default branch of installed plugin, false if not determined.
+	 */
+	protected function get_local_branch() {
+		$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->slug );
+
+		if ( ! empty( $data['Git Branch'] ) )
+			return $data['Git Branch'];
+
+		if ( ! empty( $data['GitHub Branch'] ) )
+			return $data['GitHub Branch'];
 
 		return false;
 	}
