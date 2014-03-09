@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Git Plugin Updates
-Plugin URI: https://github.com/10up/git-plugin-updates
+Plugin URI: https://github.com/brainstormmedia/git-plugin-updates
 Description: Update plugins hosted on <a href="http://github.com" target="_blank">Github</a> and <a href="http://bitbucket.org" target="_blank">Bitbucket</a>. Search and install plugins from Github using <a href="https://github.com/brainstormmedia/github-plugin-search/" target="_blank">Github Plugin Search</a>.
 Version: 2.0.1
 Author: Paul Clark, 10up
