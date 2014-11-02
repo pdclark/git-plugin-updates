@@ -19,6 +19,7 @@ abstract class GPU_Updater {
 	protected $homepage;
 	protected $requires;
 	protected $tested;
+	protected $branch;
 
 	protected $local_version;
 	protected $remote_version;
@@ -113,6 +114,8 @@ abstract class GPU_Updater {
 	 * @return array         Parsed plugin URI
 	 */
 	public static function parse_plugin_uri( $plugin ) {
+		
+		$url = NULL;
 
 		if ( !empty( $plugin['Git URI'] ) ) {
 			$url = parse_url( $plugin['Git URI'] );

@@ -331,6 +331,10 @@ class GPU_Controller {
 	public function upgrader_post_install( $true, $hook_extra, $result ) {
 
 		global $wp_filesystem;
+		
+		if( ! isset($hook_extra['plugin']) ) {
+			return;
+		}
 
 		$plugin_key = dirname($hook_extra['plugin']);
 
