@@ -332,6 +332,11 @@ class GPU_Controller {
 
 		global $wp_filesystem;
 
+		if ( ! isset( $hook_extra['plugin'] ) ) {
+			// A theme (not a plugin has just been updated)
+			return $result;
+		}
+
 		$plugin_key = dirname($hook_extra['plugin']);
 
 		if ( !array_key_exists( $plugin_key, $this->plugins ) ) {
